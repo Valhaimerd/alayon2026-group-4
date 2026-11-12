@@ -21,7 +21,7 @@ See [product](docs/PRODUCT.md), [plan](docs/PLAN.md), and [decisions](docs/DECIS
 
 ## Welcome page and scroll motion
 
-Open [schedflow-welcome.html](schedflow-welcome.html) directly in a browser for the standalone registrar welcome reference. GSAP 3.13.0 and Lenis 1.3.27 load from pinned CDN URLs. If a CDN is unavailable, the page retains native scrolling and readable content. There is no login flow in this reference.
+Open /welcome in the running app, or open [public/welcome.html](public/welcome.html) directly in a browser for the registrar welcome reference. GSAP 3.13.0 and Lenis 1.3.27 load from pinned CDN URLs. If a CDN is unavailable, the page retains native scrolling and readable content. Explore links to the map at /, and the staff link opens the existing /staff page.
 
 The welcome page uses one GSAP ticker for both Lenis and ScrollTrigger. Its rooms/classes/schedules typography stage, masked headline, moving room/class/time labels, preview cursor following, and traveling Explore button respect reduced motion. Touch scrolling stays native; smoothing is for wheel input. The Explore button moves between hero, navbar, and final section.
 

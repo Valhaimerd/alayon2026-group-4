@@ -73,6 +73,7 @@ export default function Workspace({
           <span className="demo-pill">
             {isDemo ? "Demo schedules" : "Published schedules"}
           </span>
+          <a href="/welcome">About</a>
           <a href="/staff">Staff sign in</a>
         </div>
       </header>
