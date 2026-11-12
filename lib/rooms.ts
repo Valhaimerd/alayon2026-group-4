@@ -89,6 +89,12 @@ export const rooms: Room[] = [
   },
 ];
 
+import type { CatalogComponent } from "./curriculum";
+
+export type AcademicTerm = { id: string; name: string; starts_on: string; ends_on: string; semester: number };
+export type ClassSection = { id: string; term_id: string; curriculum_id: string; name: string; year_level: number; track: string | null };
+export type AcademicData = { components: CatalogComponent[]; terms: AcademicTerm[]; sections: ClassSection[] };
+export type AdminData = AcademicData & { profiles: { id: string; name: string; instructor_code: string | null; active: boolean }[] };
 export type Booking = {
   id: string;
   roomId: string;
@@ -101,8 +107,18 @@ export type Booking = {
   published?: boolean;
   instructorId?: string | null;
   classSize?: number;
+  kind?: "legacy" | "class" | "activity";
+  classCode?: string | null;
+  course?: string | null;
+  units?: number | null;
+  subjectCode?: string | null;
+  subjectName?: string | null;
+  yearLevel?: number | null;
+  termId?: string | null;
+  sectionId?: string | null;
+  parentCode?: string | null;
 };
-export type Instructor = { id: string; name: string };
+export type Instructor = { id: string; name: string; instructor_code?: string };
 export type Notice = {
   id: string;
   title: string;
@@ -110,11 +126,12 @@ export type Notice = {
   startsAt: string;
   state: string;
 };
-export type StaffData = {
+export type StaffData = AcademicData & {
   instructors: Instructor[];
   notices: Notice[];
   recent: Booking[];
   smsEnabled: boolean;
+  setupError?: boolean;
 };
 export const demoBookings: Booking[] = [
   {

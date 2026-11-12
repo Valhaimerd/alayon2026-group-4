@@ -13,6 +13,10 @@ type ScheduleChange = {
 export async function sendScheduleChange(
   change: ScheduleChange,
 ): Promise<{ messageId: string }> {
+  return sendSms({ to: change.to, body: `${change.course}: schedule updated to ${change.room}, ${change.time}. ${change.scheduleUrl}`, eventId: change.eventId });
+}
+
+export async function sendSms(change: { to: string; body: string; eventId: string }): Promise<{ messageId: string }> {
   const key = process.env.HATURIKOSMS_API_KEY;
   if (!key) throw new Error("HATURIKOSMS_API_KEY is not configured");
 
@@ -25,7 +29,7 @@ export async function sendScheduleChange(
     },
     body: JSON.stringify({
       to: change.to,
-      body: `${change.course}: schedule updated to ${change.room}, ${change.time}. ${change.scheduleUrl}`,
+      body: change.body,
       client_reference: change.eventId,
     }),
     cache: "no-store",

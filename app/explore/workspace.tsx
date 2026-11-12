@@ -1,16 +1,17 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useId, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   demoBookings,
   rooms,
-  roomStatus,
   type Booking,
   type StaffData,
+  type AdminData,
 } from "../../lib/rooms";
-import { logout } from "./actions";
+import AcademicSetup from "./academic-setup";
 import { BookingWizard, NoticesMenu, PublishToggle, SignInDialog } from "./staff-ui";
+import { AccountSettings, VerifySignIn, type AccountProfile } from "./account-ui";
 
 const floors = ["Ground floor", "Second floor"];
 const fitView = { x: -70, y: -30, width: 1676, height: 1117 };
@@ -23,13 +24,23 @@ export default function Workspace({
   account = null,
   staff,
   openSignIn = false,
+  administration,
+  assignments,
+  assignmentsError = false,
+  accessError = false,
+  profile,
 }: {
   publishedBookings?: Booking[];
   loadError?: boolean;
   initialDate?: string;
-  account?: "staff" | "nonstaff" | null;
+  account?: "staff" | "nonstaff" | "instructor" | "administrator" | null;
   staff?: StaffData;
+  administration?: AdminData;
+  assignments?: Booking[];
+  assignmentsError?: boolean;
+  accessError?: boolean;
   openSignIn?: boolean;
+  profile?: AccountProfile;
 }) {
   const scheduleData = publishedBookings ?? demoBookings;
   const isDemo = publishedBookings === undefined;
@@ -40,7 +51,6 @@ export default function Workspace({
   const [selected, setSelected] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [date, setDate] = useState(initialDate);
-  const [time, setTime] = useState("09:00");
   const [view, setView] = useState(fitView);
   const [signInOpen, setSignInOpen] = useState(openSignIn);
   const [showDrafts, setShowDrafts] = useState(true);
@@ -48,26 +58,38 @@ export default function Workspace({
   // null: schedule view; "new": blank form; Booking: editing that booking.
   const [editing, setEditing] = useState<Booking | "new" | null>(null);
   const [message, setMessage] = useState("");
+  const [setupOpen, setSetupOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [sheetExpanded, setSheetExpanded] = useState(false);
+  const svgId = useId().replace(/:/g, "");
+  const filterButton = useRef<HTMLButtonElement>(null);
+  const roomTriggers = useRef(new Map<string, HTMLElement | SVGElement>());
+  function closeInspector() {
+    setSelected(null); setEditing(null);
+    if (selected) roomTriggers.current.get(selected)?.focus();
+  }
   const drag = useRef<{ x: number; y: number } | null>(null);
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const pinch = useRef<number | null>(null);
 
-  const statusFor = (id: string) =>
-    loadError || isPending || !date || !time
-      ? "Unknown"
-      : roomStatus(id, date, time, scheduleData);
+  const dayBookings = scheduleData.filter(b => b.date === date &&
+    (b.published !== false || ((isStaff || account === "instructor") && showDrafts)));
+  const statusFor = (id: string) => loadError || isPending || !date
+    ? "Unknown"
+    : dayBookings.some(b => b.roomId === id) ? "Scheduled" : "No bookings";
+  const statusClass = (status: string) => status === "Scheduled" ? "occupied" : status === "No bookings" ? "available" : "unknown";
   const active = rooms.find((r) => r.id === selected);
   const visible = rooms.filter(
     (r) =>
       r.floor === floor &&
-      `${r.name} ${r.kind}`.toLowerCase().includes(search.toLowerCase()),
+      (`${r.name} ${r.kind}`.toLowerCase().includes(search.trim().toLowerCase()) ||
+        dayBookings.some(b => b.roomId === r.id && `${b.title} ${b.subjectName ?? ""} ${b.subjectCode ?? ""}`.toLowerCase().includes(search.trim().toLowerCase()))),
   );
-  const bookings = scheduleData
+  const bookings = dayBookings
     .filter(
       (b) =>
         b.roomId === selected &&
-        b.date === date &&
-        (b.published !== false || (isStaff && showDrafts)),
+        b.date === date,
     )
     .sort((a, b) => a.start.localeCompare(b.start));
 
@@ -92,10 +114,13 @@ export default function Workspace({
   }
   function choose(id: string) {
     setSelected(id);
+    setFiltersOpen(false);
+    setSheetExpanded(false);
     setEditing(null);
     setMessage("");
   }
   function openBooking(b: Booking) {
+    setFiltersOpen(false);
     const room = rooms.find((r) => r.id === b.roomId);
     if (room) setFloor(room.floor);
     setSelected(b.roomId);
@@ -124,65 +149,56 @@ export default function Workspace({
         </a>
         <div className="topbar-end">
           <span className="demo-pill">
-            {isDemo ? "Demo schedules" : isStaff ? "Staff view" : "Published schedules"}
+            {isDemo ? "Demo schedules" : account ? "Your workspace" : "Published schedules"}
           </span>
-          <a href="/">About</a>
+          <details className="workspace-more" onKeyDown={e => { if (e.key === "Escape") { e.currentTarget.open = false; e.currentTarget.querySelector("summary")?.focus(); } }}><summary>More</summary><div><a href="/">About SchedFlow</a>{administration && <button onClick={() => setSetupOpen(true)}>Academic setup</button>}</div></details>
           {isStaff && <NoticesMenu notices={staff.notices} smsEnabled={staff.smsEnabled} />}
-          {account === "nonstaff" && <span className="account-note">No staff access</span>}
-          {account ? (
-            <form action={logout}>
-              <button>Sign out</button>
-            </form>
-          ) : (
+          {profile ? (profile.needsVerification ? <VerifySignIn profile={profile} /> : <AccountSettings profile={profile} />) : (
             !isDemo && (
-              <button className="link-button" onClick={() => setSignInOpen(true)}>
-                Staff sign in
+              <button className="topbar-signin" onClick={() => setSignInOpen(true)}>
+                Sign in
               </button>
             )
           )}
         </div>
       </header>
-      <div className="workspace">
-        <aside className="controls" aria-label="Map controls">
+      <div className="mobile-tools">
+        <button ref={filterButton} aria-expanded={filtersOpen} aria-controls="workspace-controls" onClick={() => setFiltersOpen(v => !v)}>Filters & rooms</button>
+        <span>{floors[floor]}</span>
+      </div>
+      <div className={`workspace ${active ? "has-selection" : ""}`}>
+        <aside id="workspace-controls" className={`controls ${filtersOpen ? "is-open" : ""}`} aria-label="Map controls" onKeyDown={e => { if (e.key === "Escape") { setFiltersOpen(false); filterButton.current?.focus(); } }}>
+          <button className="mobile-close" onClick={() => { setFiltersOpen(false); filterButton.current?.focus(); }}>Close filters</button>
           <p className="section-label">Building explorer</p>
           <h1>Find your room.</h1>
           <p className="muted">Explore the building and see what’s on.</p>
-          <label>
-            Floor
-            <select
-              value={floor}
-              onChange={(e) => {
-                setFloor(Number(e.target.value));
-                setSelected(null);
-                setEditing(null);
-              }}
-            >
-              {floors.map((f, i) => (
-                <option key={f} value={i}>
-                  {f}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="floor-switch" role="group" aria-label="Floor">
+            {floors.map((f, i) => <button key={f} aria-pressed={floor === i} onClick={() => { setFloor(i); setSelected(null); setEditing(null); }}>{i === 0 ? "Ground floor" : "Second floor"}</button>)}
+          </div>
           <div className="date-controls">
             <label>
               Date
               <input type="date" value={date} onChange={(e) => goToDate(e.target.value)} />
             </label>
-            <label>
-              Time
-              <input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
-            </label>
           </div>
           <label>
-            Search rooms
+            Search rooms or subjects
             <input
               type="search"
-              placeholder="Room name or type"
+              placeholder="Room, subject name or code"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </label>
+          {accessError && <p role="alert">Account roles could not be loaded. Apply the reviewed academic migration before using these tools.</p>}
+          {isStaff && staff.setupError && <p role="alert">Academic setup could not be loaded. Refresh or check the database migration.</p>}
+          {assignments && <section aria-label="My assignments"><h2>My assignments</h2><p className="muted small">View only. Includes your own drafts; registrars manage changes. Showing the 100 most recent meetings.</p>
+            {assignmentsError ? <p role="alert">Your assignments could not be loaded. <button onClick={() => router.refresh()}>Try again</button></p> : !assignments.length && <p>No assignments yet.</p>}
+            {!assignmentsError && assignments.map(b => <button className="room-item" key={b.id} onClick={() => {
+              const room = rooms.find(r => r.id === b.roomId); if (room) setFloor(room.floor);
+              setSelected(b.roomId); setFiltersOpen(false); setSheetExpanded(true); goToDate(b.date);
+            }}><span><strong>{b.title}</strong><small>{b.date} {b.start}-{b.end} - {roomName(b.roomId)} - {b.published ? "Published" : "Draft"}</small></span></button>)}
+          </section>}
           {isStaff && (
             <div className="staff-tools">
               <label className="check">
@@ -243,6 +259,7 @@ export default function Workspace({
                     key={r.id}
                     aria-pressed={selected === r.id}
                     className="room-item"
+                    ref={el => { if (el) roomTriggers.current.set(r.id, el); }}
                     onClick={() => choose(r.id)}
                   >
                     <span>
@@ -252,7 +269,7 @@ export default function Workspace({
                       </small>
                     </span>
                     <span
-                      className={`status-dot ${statusFor(r.id).toLowerCase()}`}
+                      className={`status-dot ${statusClass(statusFor(r.id))}`}
                       aria-label={statusFor(r.id)}
                     />
                   </button>
@@ -269,7 +286,7 @@ export default function Workspace({
         <section className="canvas-area" aria-label="Building floor plan">
           <div className="canvas-heading">
             <div>
-              <strong>CISC building</strong>
+              <strong>CISC building<span className="building-dot" aria-hidden="true" /></strong>
               <span>
                 {floors[floor]} · {date}
               </span>
@@ -320,6 +337,11 @@ export default function Workspace({
               pinch.current = null;
             }}
           >
+            <defs>
+              <linearGradient id={`${svgId}-available`} x2="1" y2="1"><stop stopColor="#f0f7ed" /><stop offset="1" stopColor="#cce4d2" /></linearGradient>
+              <linearGradient id={`${svgId}-selected`} x2="1" y2="1"><stop stopColor="#fff0ad" /><stop offset="1" stopColor="#f3c64e" /></linearGradient>
+              <linearGradient id={`${svgId}-occupied`} x2="1" y2="1"><stop stopColor="#fff3d9" /><stop offset="1" stopColor="#efcf91" /></linearGradient>
+            </defs>
             <image
               href={`/floor-plans/${floor === 0 ? "ground-floor" : "second-floor"}.png`}
               width="1536"
@@ -333,8 +355,9 @@ export default function Workspace({
                 return (
                   <g
                     key={r.id}
+                    ref={el => { if (el) roomTriggers.current.set(r.id, el); }}
                     data-room={r.id}
-                    className={`map-room ${selected === r.id ? "selected" : ""} ${status.toLowerCase()}`}
+                    className={`map-room ${selected === r.id ? "selected" : ""} ${statusClass(status)}`}
                     role="button"
                     tabIndex={0}
                     aria-label={`${r.name}, ${status}, ${r.capacity} seats`}
@@ -347,7 +370,7 @@ export default function Workspace({
                       }
                     }}
                   >
-                    <rect x={r.x + 5} y={r.y + 5} width={r.width - 10} height={r.height - 10} rx="3" />
+                    <rect style={{ fill: status === "Unknown" && selected !== r.id ? "#e4e9e6" : `url(#${svgId}-${selected === r.id ? "selected" : statusClass(status)})` }} x={r.x + 5} y={r.y + 5} width={r.width - 10} height={r.height - 10} rx="3" />
                     <text x={r.x + r.width / 2} y={r.y + r.height / 2 - 8} textAnchor="middle">
                       {r.name}
                     </text>
@@ -367,33 +390,32 @@ export default function Workspace({
             <div className="legend">
               <span>
                 <i className="available" />
-                Available
+                No bookings
               </span>
               <span>
                 <i className="occupied" />
-                Occupied
+                Scheduled
               </span>
               <span>Gray areas are not bookable</span>
             </div>
-            <div className="zoom-controls">
+            <div className="zoom-controls" role="group" aria-label="Map zoom">
               <button aria-label="Zoom out" onClick={() => zoom(1.2)}>
                 −
               </button>
-              <button onClick={() => setView(fitView)}>Fit building</button>
+              <output aria-label="Zoom level">{Math.round(fitView.width / view.width * 100)}%</output>
               <button aria-label="Zoom in" onClick={() => zoom(0.8)}>
                 +
               </button>
+              <button className="fit-button" onClick={() => setView(fitView)}>Fit building</button>
             </div>
           </div>
         </section>
         {active && (
-          <aside className="details" aria-label="Selected room">
+          <aside className={`details ${sheetExpanded ? "is-expanded" : ""}`} aria-label="Selected room" onKeyDown={e => { if (e.key === "Escape") { e.stopPropagation(); closeInspector(); } }}>
+            <button className="sheet-toggle" aria-expanded={sheetExpanded} onClick={() => setSheetExpanded(v => !v)}>{sheetExpanded ? "Collapse schedule" : "View schedule"}</button>
             <button
               className="close-panel"
-              onClick={() => {
-                setSelected(null);
-                setEditing(null);
-              }}
+              onClick={closeInspector}
               aria-label="Close panel"
             >
               ×
@@ -405,12 +427,13 @@ export default function Workspace({
                   <p className="muted">
                     {floors[active.floor]} · {active.kind}
                   </p>
+                  <p className="inspector-summary">{active.capacity} seats · {statusFor(active.id)}</p>
                   <div className="room-facts">
                     <span>
                       <strong>{active.capacity}</strong> seats
                     </span>
-                    <span className="status-badge">
-                      {statusFor(active.id)} at {time}
+                    <span className={`status-badge ${statusClass(statusFor(active.id))}`}>
+                      {statusFor(active.id)}
                     </span>
                   </div>
                   {message && (
@@ -428,7 +451,7 @@ export default function Workspace({
                   </div>
                   <p className="muted small">
                     {date} ·{" "}
-                    {isDemo ? "Sample data" : isStaff ? (showDrafts ? "Published and drafts" : "Published") : "Published"}
+                    {isDemo ? "Sample data" : isStaff ? (showDrafts ? "Published and drafts" : "Published") : account === "instructor" ? "Published and your assignments" : "Published"}
                   </p>
                   <div aria-live="polite">
                     {isPending && <p>Loading schedules…</p>}
@@ -449,6 +472,9 @@ export default function Workspace({
                             )}
                           </span>
                           <h4>{b.title}</h4>
+                          {b.kind === "class" && <p>{b.subjectCode} - {b.subjectName}<br />Class {b.classCode} - {b.course} - Year {b.yearLevel} - {b.units} {b.units === 0 ? "additional lab units" : "units"}</p>}
+                          {isStaff && b.kind === "legacy" && <p className="small">Legacy record: map its subject and account before republishing.</p>}
+                          {isStaff && b.kind === "class" && !staff.instructors.some(i => i.id === b.instructorId) && <p className="notice">Instructor no longer assignable. Review future meetings and reassign before publishing.</p>}
                           <p>
                             {b.instructor}
                             {isStaff && b.classSize ? ` · ${b.classSize} students` : ""}
@@ -474,7 +500,7 @@ export default function Workspace({
                   </div>
                   {!account && !isDemo && (
                     <button className="link-button staff-link" onClick={() => setSignInOpen(true)}>
-                      Sign in to manage schedules
+                      Sign in to your account
                     </button>
                   )}
                 </>
@@ -488,16 +514,23 @@ export default function Workspace({
           booking={editingBooking}
           roomId={selected ?? visible[0]?.id ?? rooms[0].id}
           date={date}
-          time={time}
+          time="09:00"
           instructors={staff.instructors}
+          academic={staff}
           onCancel={() => setEditing(null)}
-          onDone={(text, savedDate) => {
+          onDone={(text, savedDate, savedRoom) => {
             setEditing(null);
+            setFiltersOpen(false);
+            setSheetExpanded(true);
             setMessage(text);
+            setSelected(savedRoom);
+            const room = rooms.find(r => r.id === savedRoom);
+            if (room) setFloor(room.floor);
             if (savedDate !== date) goToDate(savedDate);
           }}
         />
       )}
+      {administration && setupOpen && <AcademicSetup data={administration} onClose={() => setSetupOpen(false)} />}
       {!account && !isDemo && (
         <SignInDialog
           open={signInOpen}

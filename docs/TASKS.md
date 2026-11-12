@@ -1,6 +1,7 @@
 # Implementation tasks
 
-This is the working backlog for the expanded competition build. Read the [proposal](CLASS-SCHED-PROPOSAL.md), [architecture](ARCHITECTURE.md), and [delivery milestones](PLAN.md) first. Record actual results and limitations. CSV/PDF work is planned in tasks 8–11; optional AI is task 12. Tasks 14–16 now define fixed subjects, account-backed instructors and lecture/lab allocation, superseding free-text academic fields and registrar instructor creation. A task is done only when its acceptance checks pass. Do not mark planned behavior as implemented.
+
+This is the working backlog for the expanded competition build. Read the [proposal](CLASS-SCHED-PROPOSAL.md), [architecture](ARCHITECTURE.md), and [delivery milestones](PLAN.md) first. Record actual results and limitations. CSV/PDF work is planned in tasks 8–11; optional AI is task 12. Tasks 14-16 define the implemented academic baseline and its remaining curriculum, weekly-display and exchange acceptance checks. A task is done only when its acceptance checks pass. Do not mark planned behavior as implemented.
 
 ## Current execution summary
 
@@ -48,7 +49,7 @@ Map, public schedule view, staff screens, database policies and constraints, PWA
 
 ## 4. Create and publish a booking
 
-**Status:** verified for the earlier local same-day, one-time booking baseline. Fixed-catalog and account-backed allocations require tasks 14–16; earlier instructor creation is no longer the target behavior. The legacy five-step workspace wizard also supports bounded weekly series creation; editing remains per occurrence. **Depends on:** tasks 2 and 3.
+**Status:** verified for the earlier local same-day, one-time booking baseline. The fixed-catalog/account-backed baseline is implemented in tasks 14-16; remaining curriculum and exchange acceptance is listed there. The legacy five-step workspace wizard also supports bounded weekly series creation; editing remains per occurrence. **Depends on:** tasks 2 and 3.
 
 - [x] Provide a staff-only form to create and edit a one-time class or exam with room, activity, start/end, class size, and instructor information needed for the demo.
 - [x] Validate required fields, end after start, room capacity, and overlapping published bookings; allow an end time equal to another booking's start. Enforce conflict protection in the database or an equivalent atomic transaction, not just the browser.
@@ -103,7 +104,7 @@ Map, public schedule view, staff screens, database policies and constraints, PWA
 
 ## Expanded file exchange tasks
 
-The following tasks are planned, not implemented. The [import/export specification](IMPORT-EXPORT.md) owns formats, limits, permissions, and common validation. Coordinate with the ongoing single-page workspace refactor before editing its components. Prioritize task 13's weekly workspace before wiring export defaults to it. Complete release task 7 again for these features when they are ready.
+CSV/PDF tasks below remain planned. Tasks 14-16 now have an implemented academic baseline with explicitly recorded remaining checks. The [import/export specification](IMPORT-EXPORT.md) owns formats, limits, permissions, and common validation. Coordinate with the ongoing single-page workspace refactor before editing its components. Prioritize task 13's weekly workspace before wiring export defaults to it. Complete release task 7 again for these features when they are ready.
 
 ## 8. CSV template and complete schedule export
 
@@ -172,11 +173,11 @@ The following tasks are planned, not implemented. The [import/export specificati
 
 ## 14. Fixed curriculum and academic schedule details
 
-**Status:** planned, user-required fixed catalog. **Priority:** before CSV/PDF class import; coordinate with tasks 13, 15 and 16 and active explorer work. **Depends on:** existing bookings and a verified curriculum version. Read [academic schedule details](SCHEDULE-DATA.md) and the [catalog transcription](SUBJECT-CATALOG.md).
+**Status:** provisional catalog/selection implemented and tested; official verification, elective/NSTP/track activation and exchange checks remain. **Priority:** before CSV/PDF class import; coordinate with tasks 13, 15 and 16 and active explorer work. **Depends on:** existing bookings and a verified curriculum version. Read [academic schedule details](SCHEDULE-DATA.md) and the [catalog transcription](SUBJECT-CATALOG.md).
 
 - [ ] Verify the 113 source entries, 38 proposed lab links and per-section credit totals. Confirm official BSIT curriculum version, elective substitutions, NSTP alternatives and add101; leave unresolved placeholders inactive.
-- [ ] Add reviewed catalog/component migrations and controlled, repeatable administrator seed operations. Store immutable IDs, source codes, titles, credits and placement/track data; labs reference a parent subject explicitly and have zero additional credits.
-- [ ] Make subject/component selection catalog-backed and names/units read-only to registrars. Reject catalog writes by registrar/instructor/public roles at the database and server boundaries, not only in the UI.
+- [x] Add reviewed catalog/component migrations and controlled, repeatable administrator seed operations. Store immutable IDs, source codes, titles, credits and placement/track data; labs reference a parent subject explicitly and have zero additional credits.
+- [x] Make subject/component selection catalog-backed and names/units read-only to registrars. Reject catalog writes by registrar/instructor/public roles at the database and server boundaries, not only in the UI.
 - [ ] Preserve legacy titles and unlinked records without inventing subjects or accounts; require explicit mapping before later class publication. Keep non-teaching activity handling distinct.
 - [ ] Extend safe read projections and shared CSV/PDF/timetable metadata. Preserve codes with leading zeros and explicit aliases; never sum subject credits per meeting or count track replacements twice.
 
@@ -184,24 +185,35 @@ The following tasks are planned, not implemented. The [import/export specificati
 
 ## 15. Account-backed instructors and role boundaries
 
-**Status:** planned, confirmed ownership model. **Depends on:** existing Supabase Auth and reviewed role migration design.
+**Status:** roles, account linking, registrar restrictions and instructor-private reads implemented; instructor-only browser and operational role-removal checks remain. **Depends on:** existing Supabase Auth and reviewed role migration design.
 
-- [ ] Define explicit administrator, registrar and instructor roles. Migrate the existing privileged staff account only after confirming its intended roles; do not turn every authenticated user or legacy instructor name into staff.
-- [ ] Provision/activate instructor accounts through administrator-controlled Auth operations. Require a unique Auth-user link in profiles, an institutional allocation identifier and eligibility state. Pending invitations and inactive accounts cannot receive new allocations.
-- [ ] Remove registrar Add instructor controls and instructor/account creation mutations. Replace broad staff policies with role-specific reads/writes; direct inserts and role self-promotion must fail. Limit registrar contact access to what the workflow needs.
-- [ ] Give instructors view-only access to their own private allocations and public schedules. Separate instructor login behavior from registrar controls; do not deny all instructor access just because the account has no registrar membership.
+- [x] Define explicit administrator, registrar and instructor roles. Migrate the existing privileged staff account only after confirming its intended roles; do not turn every authenticated user or legacy instructor name into staff.
+- [x] Provision/activate instructor accounts through administrator-controlled Auth operations. Require a unique Auth-user link in profiles, an institutional allocation identifier and eligibility state. Pending invitations and inactive accounts cannot receive new allocations.
+- [x] Remove registrar Add instructor controls and instructor/account creation mutations. Replace broad staff policies with role-specific reads/writes; direct inserts and role self-promotion must fail. Limit registrar contact access to what the workflow needs.
+- [x] Give instructors view-only access to their own private allocations and public schedules. Separate instructor login behavior from registrar controls; do not deny all instructor access just because the account has no registrar membership.
 - [ ] Preserve historical assignments on deactivation; flag future affected assignments for reassignment without deleting history. Resolve existing standalone instructor rows explicitly. Decide profile contact/consent editing authority before adding that flow.
 
 **Acceptance:** administrator-provisioned instructor signs in; registrar selects the account but cannot create one through UI or direct requests; non-instructors cannot be assigned; inactive/invited-only accounts fail eligibility checks. Instructors cannot mutate schedules or read colleagues' drafts/private contacts. Test explicit combined roles, role removal, account deactivation and historical access with real role contexts. No credentials or Auth IDs are exported in exchange files.
 
 ## 16. Subject offerings and lecture or lab allocation
 
-**Status:** planned, required linkage and allocation workflow. **Depends on:** tasks 14–15, reviewed term/section data, and the map workspace.
+**Status:** term/section/offering/component baseline implemented and tested. Weekly timetable, exports and subgroup/room suitability rules remain. **Depends on:** tasks 14–15, reviewed term/section data, and the map workspace.
 
-- [ ] Represent academic term, class section/year/track and approved subject offering; attach component-level instructor assignments and room/time meetings. Use the documented unique offering tuple so lecture, lab and repeated occurrences share one offering and one credit count. Term/section creation authority must be explicit; file import cannot create these records silently.
-- [ ] Let registrars select subject → lecture/main or linked lab → active instructor → suitable room and explicit start/end. Populate catalog name/units automatically; label labs with their parent subject. Different lecture/lab instructors are permitted.
+- [x] Represent academic term, class section/year/track and approved subject offering; attach component-level instructor assignments and room/time meetings. Use the documented unique offering tuple so lecture, lab and repeated occurrences share one offering and one credit count. Term/section creation authority must be explicit; file import cannot create these records silently.
+- [x] Let registrars select subject → lecture/main or linked lab → active instructor → suitable room and explicit start/end. Populate catalog name/units automatically; label labs with their parent subject. Different lecture/lab instructors are permitted.
 - [ ] Reject mismatched subject/component/section links and ineligible instructors before publication. Atomically block published room and instructor overlaps across rooms/components while allowing adjacent meetings. Decide section/subgroup constraints before enforcing them.
 - [ ] Render each component separately in weekly grid/agenda and reports; count parent subject credits once per offering. Track subjects substitute approved elective slots, not extra duplicated credits. Unresolved placeholders cannot be published.
 - [ ] Reuse the same resolution/validation rules in CSV/PDF staging and SMS recipient lookup. New instructors/subjects are never created as import side effects. Distinguish class rows from non-teaching activities explicitly; activity imports must not require fabricated academic metadata or bypass class rules. Persist draft review state without presenting it as a published assignment.
 
 **Acceptance:** one offering has lecture and lab in different rooms with different instructor accounts and correct credits; unrelated lab attachment fails. Same-instructor overlaps in different rooms fail under concurrent submissions; back-to-back meetings work. Staff selects times independently of units. Unknown imported codes/accounts are review errors. Verify instructor own-assignment visibility, registrar allocation rights, catalog-derived values and no automatic SMS from file review.
+
+## 17. Map workspace visual redesign
+
+**Status:** approved and implemented locally. See development status for evidence and remaining device/role-specific checks. See the [design specification](superpowers/specs/2026-11-12-map-workspace-design.md) and [implementation sequence](superpowers/plans/2026-11-12-map-workspace-redesign.md).
+
+- [x] Apply a cohesive light-mode yellow/dark-green visual system, restrained gradients, stronger typography and clear workspace hierarchy.
+- [x] Refine the header, navigator, room overlays, selection states, inspector and zoom/Fit toolbar while preserving the building as the main canvas.
+- [x] Adapt panels and current dialogs for desktop/tablet/mobile without changing room geometry, scheduling rules, account security or role permissions.
+- [x] Verify contrast, keyboard/pointer behavior, gestures, reduced motion, error/unknown states and role-specific layouts; record browser checks and run lint/tests/build.
+
+**Acceptance:** the supplied floor plan stays central and interactive; selected/occupied/unknown remain distinguishable; white panels and yellow/green accents form one visual system; small screens preserve map access and readable forms. This task does not implement the weekly timetable, CSV/PDF exchange or floor-plan editing.

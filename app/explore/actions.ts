@@ -6,6 +6,7 @@ import {
   validateBooking,
 } from "../../lib/booking-validation";
 import { sendScheduleChange } from "../../lib/sms";
+import { accountSession } from "../../lib/account-session";
 
 export type ActionResult = { ok: boolean; message: string; id?: string } | null;
 
@@ -14,27 +15,35 @@ const fail = (message: string): ActionResult => ({ ok: false, message });
 // Every staff mutation re-checks the session and membership on the server;
 // database policies remain the final access boundary.
 async function staffClient() {
-  const db = await serverClient();
-  const {
-    data: { user },
-  } = await db.auth.getUser();
-  if (!user) return { db, error: "Sign in first." };
+  const { db, user, error } = await accountSession();
+  if (error || !user) return { db, error: error || "Sign in first." };
   const { data: staff } = await db
-    .from("staff_members")
+    .from("account_roles")
     .select("user_id")
     .eq("user_id", user.id)
+    .eq("role", "registrar")
     .maybeSingle();
-  return { db, error: staff ? null : "This account does not have staff access." };
+  return { db, error: staff ? null : "Registrar access is required." };
 }
 
 function saveError(error: { code?: string; message?: string }) {
   if (error.code === "23P01")
-    return "This room already has a published booking at that time.";
+    return error.message?.includes("instructor_no_overlap")
+      ? "This instructor already has a published class at that time."
+      : "This room already has a published booking at that time.";
   if (error.message?.includes("capacity"))
     return "Class size exceeds room capacity.";
   if (error.code === "23514")
     return "Check the date, times, and class size. Bookings must start and end on the same day.";
-  return "Could not save. Try again.";
+  for (const message of [
+    "Choose an active instructor with a confirmed account",
+    "Every meeting must fall within the academic term dates",
+    "Choose an active component belonging to the subject and section",
+    "Subject year, semester and track must match the section",
+    "Map this legacy class to a subject and instructor before republishing or editing",
+    "Choose a valid section", "Choose a valid subject offering",
+  ]) if (error.message?.includes(message)) return `${message}.`;
+  return "Could not save. Check your selections and try again.";
 }
 
 export async function login(_: ActionResult, form: FormData): Promise<ActionResult> {
@@ -45,18 +54,8 @@ export async function login(_: ActionResult, form: FormData): Promise<ActionResu
   });
   if (error || !data.user)
     return fail("Sign-in failed. Check your email and password.");
-  const { data: staff } = await db
-    .from("staff_members")
-    .select("user_id")
-    .eq("user_id", data.user.id)
-    .maybeSingle();
-  return staff
-    ? { ok: true, message: "Signed in." }
-    : {
-        ok: true,
-        message:
-          "Signed in, but this account has no staff role. Ask the project administrator to provision access.",
-      };
+  refresh();
+  return { ok: true, message: "Signed in." };
 }
 
 export async function logout() {
@@ -96,32 +95,36 @@ export async function saveBooking(_: ActionResult, form: FormData): Promise<Acti
     const invalid = validateBooking({ ...s, size }, room.capacity);
     if (invalid) return fail(invalid);
   }
-  if (!title || title.length > 200)
-    return fail("Enter a course or activity of at most 200 characters.");
-  const instructorId = String(form.get("instructor") ?? "") || null;
-  const { data: instructor } = instructorId
-    ? await db.from("instructors").select("name").eq("id", instructorId).maybeSingle()
-    : { data: null };
-  if (instructorId && !instructor) return fail("Choose a valid instructor.");
+  const kind = String(form.get("kind") || "class");
+  const instructorId = String(form.get("instructor") || "");
   const published = form.get("published") === "on";
-  const rows = slots.map((s) => ({
-    room_id: roomId,
-    title,
-    starts_at: s.start,
-    ends_at: s.end,
-    class_size: size,
-    instructor_id: instructorId,
-    instructor_name: instructor?.name || "Unassigned",
-    published,
-  }));
-  // A multi-row insert is one statement: a conflict on any date saves none of them.
-  const { data: saved, error } = id
-    ? await db.from("bookings").update(rows[0]).eq("id", id).select("id")
-    : await db.from("bookings").insert(rows).select("id");
-  if (error || !saved?.length)
+  let error: { code?: string; message?: string } | null = null;
+  let savedCount = 0;
+  if (kind === "class") {
+    const result = await db.rpc("save_class_booking", {
+      p_id: id || null, p_section: String(form.get("section") || ""),
+      p_parent: String(form.get("parent") || ""), p_component: String(form.get("component") || ""),
+      p_class_code: String(form.get("classCode") || ""), p_instructor: instructorId,
+      p_room: roomId, p_size: size, p_published: published, p_slots: slots,
+    });
+    error = result.error;
+    savedCount = result.data || 0;
+  } else if (kind === "activity") {
+    if (!title || title.length > 200) return fail("Enter an activity of at most 200 characters.");
+    const rows = slots.map(s => ({ ...{ starts_at: s.start, ends_at: s.end }, kind: "activity",
+      title, room_id: roomId, class_size: size, published,
+      instructor_id: null, instructor_name: "Department activity", offering_id: null, component_code: null,
+    }));
+    const result = id
+      ? await db.from("bookings").update(rows[0]).eq("id", id).select("id")
+      : await db.from("bookings").insert(rows).select("id");
+    error = result.error;
+    savedCount = result.data?.length || 0;
+  } else return fail("Choose Class or Department activity.");
+  if (error || !savedCount)
     return fail(
       error
-        ? `${saveError(error)}${rows.length > 1 ? " No classes in this series were saved." : ""}`
+        ? `${saveError(error)}${slots.length > 1 ? " No classes in this series were saved." : ""}`
         : "Could not save. Try again.",
     );
   let notice = "";
@@ -134,7 +137,7 @@ export async function saveBooking(_: ActionResult, form: FormData): Promise<Acti
     for (const n of pending || []) notice = ` ${await dispatchNotice(n.id)}`;
   }
   refresh();
-  const what = rows.length > 1 ? `${rows.length} classes` : "Booking";
+  const what = slots.length > 1 ? `${slots.length} classes` : "Booking";
   return {
     ok: true,
     message: `${published ? `${what} saved and published.` : `${what} saved as draft. Not public until published.`}${notice}`,
@@ -231,21 +234,4 @@ export async function retryNotice(_: ActionResult, form: FormData): Promise<Acti
   const message = await dispatchNotice(String(form.get("id")));
   refresh();
   return { ok: message.startsWith("Instructor notice queued"), message };
-}
-
-export async function saveInstructor(_: ActionResult, form: FormData): Promise<ActionResult> {
-  const { db, error: denied } = await staffClient();
-  if (denied) return fail(denied);
-  const name = String(form.get("name") ?? "").trim();
-  const phone = String(form.get("phone") ?? "").trim();
-  if (!name || name.length > 100 || (phone && !/^(\+63|0)9\d{9}$/.test(phone)))
-    return fail("Enter a name and, if given, a valid Philippine mobile number.");
-  const { data, error } = await db
-    .from("instructors")
-    .insert({ name, phone: phone || null, consent: form.get("consent") === "on" })
-    .select("id")
-    .single();
-  if (error || !data) return fail("Could not save the instructor.");
-  refresh();
-  return { ok: true, id: data.id, message: `${name} added.` };
 }

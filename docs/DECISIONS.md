@@ -12,7 +12,7 @@ Decided 2026-11-12. All public and staff functions live on the building explorer
 
 ## Authentication direction
 
-Authenticator-app MFA is the preferred option if the requirements permit it. HaturikoSMS is required for project SMS functionality; whether SMS is required for authentication remains open.
+Confirmed 2026-11-12: MFA is optional for now. Support authenticator apps through Supabase TOTP and SMS codes delivered directly through HaturikoSMS, without Supabase's paid phone-MFA service. Enrolled users verify a configured method before private access. Sign-in language is account-neutral, and the circular profile button opens personal settings. HaturikoSMS also handles schedule notifications. See [account settings](ACCOUNT-SETTINGS.md) for behavior and verification.
 
 ## Expanded release and file exchange
 

@@ -5,11 +5,10 @@ import {
   login,
   retryNotice,
   saveBooking,
-  saveInstructor,
   setPublished,
   type ActionResult,
 } from "./actions";
-import { rooms, type Booking, type Instructor, type Notice } from "../../lib/rooms";
+import { rooms, type Booking, type Instructor, type Notice, type AcademicData } from "../../lib/rooms";
 import {
   expandSchedule,
   weekday,
@@ -25,11 +24,13 @@ export function Modal({
   onClose,
   title,
   children,
+  className = "",
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  className?: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -40,7 +41,7 @@ export function Modal({
     if (!open && dialog.open) dialog.close();
   }, [open]);
   return (
-    <dialog ref={ref} className="modal" aria-labelledby={titleId} onClose={onClose}>
+    <dialog ref={ref} className={`modal ${className}`} aria-labelledby={titleId} onClose={onClose}>
       <div className="modal-head">
         <h2 id={titleId}>{title}</h2>
         <button type="button" className="close-panel" aria-label="Close" onClick={onClose}>
@@ -70,6 +71,7 @@ export function SignInDialog({
   onClose: () => void;
   onSignedIn: (message: string) => void;
 }) {
+  const [showPassword, setShowPassword] = useState(false);
   const [state, action, pending] = useActionState(
     async (prev: ActionResult, form: FormData) => {
       const result = await login(prev, form);
@@ -79,21 +81,29 @@ export function SignInDialog({
     null,
   );
   return (
-    <Modal open={open} onClose={onClose} title="Staff sign in">
-      <form action={action} className="stack">
+    <Modal open={open} onClose={onClose} title="Sign in" className="sign-in-modal">
+      <div className="signin-emblem" aria-hidden="true">S<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 3 4 6v6c0 5 8 9 8 9s8-4 8-9V6l-8-3Z" /><path d="m8.5 11.5 2.5 2.5 4.5-5" /></svg></div>
+      <p className="signin-intro">Welcome to CISC SchedFlow</p>
+      <p className="signin-campus">Central Mindanao University<br />College of Information Sciences and Computing</p>
+      <form action={action} className="signin-form">
         <Status state={state?.ok ? null : state} />
-        <label>
-          Email
-          <input name="email" type="email" autoComplete="username" required />
-        </label>
-        <label>
-          Password
-          <input name="password" type="password" autoComplete="current-password" required />
-        </label>
-        <button className="primary" disabled={pending}>
-          {pending ? "Signing in…" : "Sign in"}
+        <label htmlFor="signin-email">Email address</label>
+        <div className="signin-input">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><rect x="3" y="5" width="18" height="14" rx="3" /><path d="m4 7 8 6 8-6" /></svg>
+          <input id="signin-email" name="email" type="email" autoComplete="username" placeholder="you@example.com" required />
+        </div>
+        <label htmlFor="signin-password">Password</label>
+        <div className="signin-input">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><rect x="5" y="10" width="14" height="11" rx="3" /><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3" /></svg>
+          <input id="signin-password" name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" required />
+          <button type="button" className="password-visibility" aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)}>
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" /><circle cx="12" cy="12" r="3" />{showPassword && <path d="m3 3 18 18" />}</svg>
+          </button>
+        </div>
+        <button className="primary signin-submit" disabled={pending}>
+          {pending ? "Signing in…" : "Sign in to CISC SchedFlow"}<span aria-hidden="true">→</span>
         </button>
-        <p className="muted small">Staff accounts are provisioned by the department administrator.</p>
+        <p className="signin-help">Use your account email and password.<br />Need access? Contact your account administrator.</p>
       </form>
     </Modal>
   );
@@ -159,47 +169,6 @@ export function PublishToggle({ booking }: { booking: Booking }) {
       </button>
       {state && !state.ok && <Status state={state} />}
     </form>
-  );
-}
-
-function InstructorDialog({
-  open,
-  onClose,
-  onSaved,
-}: {
-  open: boolean;
-  onClose: () => void;
-  onSaved: (id: string) => void;
-}) {
-  const [state, action, pending] = useActionState(
-    async (prev: ActionResult, form: FormData) => {
-      const result = await saveInstructor(prev, form);
-      if (result?.ok && result.id) onSaved(result.id);
-      return result;
-    },
-    null,
-  );
-  return (
-    <Modal open={open} onClose={onClose} title="Add instructor">
-      <form action={action} className="stack">
-        <Status state={state?.ok ? null : state} />
-        <label>
-          Name
-          <input name="name" required maxLength={100} />
-        </label>
-        <label>
-          Mobile number (optional)
-          <input name="phone" type="tel" placeholder="09XXXXXXXXX" autoComplete="off" />
-        </label>
-        <label className="check">
-          <input name="consent" type="checkbox" />
-          Instructor agreed to schedule notices
-        </label>
-        <button className="primary" disabled={pending}>
-          {pending ? "Saving…" : "Save instructor"}
-        </button>
-      </form>
-    </Modal>
   );
 }
 
@@ -288,6 +257,7 @@ export function BookingWizard({
   date,
   time,
   instructors,
+  academic,
   onDone,
   onCancel,
 }: {
@@ -296,7 +266,8 @@ export function BookingWizard({
   date: string;
   time: string;
   instructors: Instructor[];
-  onDone: (message: string, date: string) => void;
+  academic: AcademicData;
+  onDone: (message: string, date: string, roomId: string) => void;
   onCancel: () => void;
 }) {
   const editing = !!booking;
@@ -320,7 +291,20 @@ export function BookingWizard({
   const [perDay, setPerDay] = useState<Record<number, TimeRange>>({});
   const [room, setRoom] = useState(booking?.roomId ?? roomId);
   const [publish, setPublish] = useState(booking?.published ?? false);
-  const [adding, setAdding] = useState(false);
+  const [kind, setKind] = useState<"class" | "activity">(booking?.kind === "activity" ? "activity" : "class");
+  const [termId, setTermId] = useState(booking?.termId ?? "");
+  const [sectionId, setSectionId] = useState(booking?.sectionId ?? "");
+  const [classCode, setClassCode] = useState(booking?.classCode ?? "");
+  const initialComponent = academic.components.find(c => c.code === booking?.subjectCode);
+  const [parentCode, setParentCode] = useState(initialComponent?.parentCode ?? initialComponent?.code ?? "");
+  const [componentCode, setComponentCode] = useState(initialComponent?.code ?? "");
+  const term = academic.terms.find(t => t.id === termId);
+  const section = academic.sections.find(s => s.id === sectionId && s.term_id === termId);
+  const parent = academic.components.find(c => c.code === parentCode);
+  const component = academic.components.find(c => c.code === componentCode);
+  const subjectChoices = academic.components.filter(c => c.active && !c.parentCode && c.year === section?.year_level && c.semester === term?.semester);
+  const components = academic.components.filter(c => c.active && (c.code === parentCode || c.parentCode === parentCode));
+  const displayTitle = kind === "class" ? `${classCode} - ${component?.title ?? "Choose subject"}` : title;
 
   const schedule: ScheduleInput = {
     mode,
@@ -343,7 +327,7 @@ export function BookingWizard({
   const [state, action, pending] = useActionState(
     async (prev: ActionResult, form: FormData) => {
       const result = await saveBooking(prev, form);
-      if (result?.ok) onDone(result.message, occurrences[0]?.date ?? date);
+      if (result?.ok) onDone(result.message, occurrences[0]?.date ?? date, room);
       return result;
     },
     null,
@@ -356,7 +340,13 @@ export function BookingWizard({
   // Returns the first problem that blocks moving to the target step.
   function check(target: number): string {
     if (target > 0) {
-      if (!title.trim()) return "Enter the course or activity.";
+      if (kind === "activity" && !title.trim()) return "Enter the department activity.";
+      if (kind === "class") {
+        if (!term || !section) return "Choose an academic term and class section.";
+        if (!classCode.trim() || classCode.trim().length > 40) return "Enter a class code of at most 40 characters.";
+        if (!subjectChoices.some(c => c.code === parentCode) || !components.some(c => c.code === componentCode)) return "Choose an active subject and its component.";
+        if (!instructors.some(i => i.id === instructor)) return "Choose an active instructor account. Ask the administrator to provision missing accounts.";
+      }
       if (!Number.isInteger(seats) || seats < 1)
         return "Enter a class size of at least 1.";
     }
@@ -367,6 +357,8 @@ export function BookingWizard({
         return "Choose a first date and a last date on or after it.";
     }
     if (target > 2 && "error" in expanded) return expanded.error;
+    if (target > 2 && kind === "class" && term && occurrences.some(o => o.date < term.starts_on || o.date > term.ends_on))
+      return "Every meeting must fall within the academic term dates.";
     if (target > 3 && (!chosenRoom || chosenRoom.capacity < seats))
       return "Choose a room with enough seats.";
     return "";
@@ -406,6 +398,11 @@ export function BookingWizard({
         }}
       >
         <input type="hidden" name="id" value={booking?.id ?? ""} />
+        <input type="hidden" name="kind" value={kind} />
+        <input type="hidden" name="section" value={sectionId} />
+        <input type="hidden" name="parent" value={parentCode} />
+        <input type="hidden" name="component" value={componentCode} />
+        <input type="hidden" name="classCode" value={classCode} />
         <input type="hidden" name="title" value={title} />
         <input type="hidden" name="instructor" value={instructor} />
         <input type="hidden" name="size" value={size} />
@@ -420,32 +417,36 @@ export function BookingWizard({
         {step === 0 && (
           <div className="stack">
             <h3>What is being scheduled?</h3>
-            <label>
-              Course or activity
-              <input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                maxLength={200}
-                placeholder="e.g. CS 211 Data Structures"
-                autoFocus
-              />
-            </label>
-            <div className="field-row">
-              <label>
-                Instructor
-                <select value={instructor} onChange={(e) => setInstructor(e.target.value)}>
-                  <option value="">Unassigned</option>
-                  {instructors.map((i) => (
-                    <option key={i.id} value={i.id}>
-                      {i.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <button type="button" className="add-instructor" onClick={() => setAdding(true)}>
-                + Add
-              </button>
-            </div>
+            {booking?.kind === "legacy" && <p className="notice">Legacy booking. Select its actual subject and instructor account before saving it as a class.</p>}
+            <label>Schedule type<select value={kind} onChange={e => setKind(e.target.value as "class" | "activity")}>
+              <option value="class">Class</option><option value="activity">Department activity (no academic units)</option>
+            </select></label>
+            {kind === "activity" ? <label>Activity name<input value={title} onChange={e => setTitle(e.target.value)} maxLength={200} /></label> : <>
+              <p className="muted small">Predefined BSIT curriculum (provisional). Subject titles and units are read-only; unresolved electives, tracks and NSTP entries are unavailable.</p>
+              {!academic.terms.length || !academic.sections.length ? <p role="status" className="notice">Ask the administrator to configure the actual term dates and class sections first.</p> : null}
+              <label>Academic term<select value={termId} onChange={e => {
+                setTermId(e.target.value); setSectionId(""); setParentCode(""); setComponentCode("");
+                const next = academic.terms.find(t => t.id === e.target.value);
+                if (next) { setFrom(next.starts_on); setUntil(next.ends_on); setOnceDate(next.starts_on); }
+              }}><option value="">Choose term</option>{academic.terms.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>
+              <label>Class section<select value={sectionId} onChange={e => { setSectionId(e.target.value); setParentCode(""); setComponentCode(""); }}>
+                <option value="">Choose section</option>{academic.sections.filter(s => s.term_id === termId).map(s => <option key={s.id} value={s.id}>{s.name} - Year {s.year_level}</option>)}
+              </select></label>
+              <label>Class code<input value={classCode} onChange={e => setClassCode(e.target.value)} maxLength={40} placeholder="Preserves leading zeros, e.g. 00123" /></label>
+              <label>Subject<select value={parentCode} onChange={e => { setParentCode(e.target.value); setComponentCode(e.target.value); }}>
+                <option value="">Choose approved subject</option>{subjectChoices.map(c => <option value={c.code} key={c.code}>{c.code} - {c.title}</option>)}
+              </select></label>
+              <label>Meeting component<select value={componentCode} onChange={e => setComponentCode(e.target.value)}>
+                <option value="">Choose component</option>{components.map(c => <option value={c.code} key={c.code}>{c.parentCode ? "Lab" : "Lecture / main"} - {c.code}</option>)}
+              </select></label>
+              {component && <p className="notice">{component.title}<br />BSIT - Year {section?.year_level} - {component.units} {component.parentCode ? "additional lab units" : "units"}
+                {component.parentCode && <><br />Linked to {parent?.code} - {parent?.title} ({parent?.units} parent units, counted once).</>}
+              </p>}
+              <label>Instructor account<select value={instructor} onChange={e => setInstructor(e.target.value)}>
+                <option value="">Choose existing active instructor</option>{instructors.map(i => <option key={i.id} value={i.id}>{i.instructor_code} - {i.name}</option>)}
+              </select></label>
+              {!instructors.length && <p className="notice">No active instructor accounts. An administrator must link confirmed accounts before classes can be saved.</p>}
+            </>}
             <label>
               Class size
               <input type="number" min="1" value={size} onChange={(e) => setSize(e.target.value)} />
@@ -586,6 +587,7 @@ export function BookingWizard({
         {step === 3 && (
           <div className="stack">
             <h3>Which room?</h3>
+            {kind === "class" && component?.parentCode && <p className="notice">Confirm the room meets this lab&apos;s requirements. Room capabilities and lab contact hours have not been verified.</p>}
             <p className="muted small">
               Rooms with fewer than {seats} seats cannot hold this class.
             </p>
@@ -617,10 +619,11 @@ export function BookingWizard({
             <dl className="summary">
               <dt>Class</dt>
               <dd>
-                {title} · {seats} students
+                {displayTitle} · {seats} students
               </dd>
               <dt>Instructor</dt>
-              <dd>{instructors.find((i) => i.id === instructor)?.name ?? "Unassigned"}</dd>
+              <dd>{kind === "activity" ? "Department activity" : instructors.find(i => i.id === instructor)?.name ?? "Choose instructor"}</dd>
+              {kind === "class" && <><dt>Academic</dt><dd>BSIT - Year {section?.year_level} - {component?.units} {component?.parentCode ? "additional lab units" : "units"}<br />{section?.name} - {term?.name}</dd></>}
               <dt>Room</dt>
               <dd>{chosenRoom?.name}</dd>
               <dt>Schedule</dt>
@@ -654,7 +657,7 @@ export function BookingWizard({
             <p className="muted small">
               {publish
                 ? "Conflicts with published bookings are checked on save. If any date conflicts, nothing is saved."
-                : "Drafts are visible to staff only and can be published later."}
+                : "Drafts are visible to registrars and their assigned instructor. Publish when ready."}
             </p>
           </div>
         )}
@@ -680,14 +683,7 @@ export function BookingWizard({
           </button>
         </div>
       </form>
-      <InstructorDialog
-        open={adding}
-        onClose={() => setAdding(false)}
-        onSaved={(id) => {
-          setInstructor(id);
-          setAdding(false);
-        }}
-      />
+
     </Modal>
   );
 }

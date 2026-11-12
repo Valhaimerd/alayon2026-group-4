@@ -1,6 +1,6 @@
 # Academic schedule details
 
-Status: revised design, not implemented. The fixed catalog and account-backed assignment rules supersede the earlier recommendation to enter subject names, units and instructor names freely. [Task 14](TASKS.md#14-fixed-curriculum-and-academic-schedule-details), task 15 and task 16 cover implementation. The [subject catalog](SUBJECT-CATALOG.md) transcribes all supplied subjects, credits and proposed lab-parent links.
+Status: core catalog, account-role and lecture/lab allocation behavior is implemented. The catalog remains provisional; unresolved electives/NSTP/track mappings are inactive. Weekly timetable and CSV/PDF behavior below remain requirements, not completion claims. See [implementation status](DEVELOPMENT-STATUS.md) and [setup/contracts](ACADEMIC-SETUP.md).
 
 ## Confirmed direction
 
@@ -69,7 +69,7 @@ The earlier snapshot-only recommendation is superseded by the fixed-catalog requ
 
 Existing bookings contain a generic `title` and may reference free-standing instructor records without accounts. Preserve legacy records for review; do not create subjects or Auth accounts by matching names automatically. Require explicit mapping to a subject/component and an eligible instructor before a class is republished under the new model. Non-teaching activities may retain their separate title and workflow without invented academic fields.
 
-Current broad staff write policies and registrar instructor-creation UI must be replaced. Enforce account/catalog creation restrictions in database policies, constraints and server actions as well as the visible interface. Update public projections, authorized reads, import/export mappings, SMS recipient resolution and tests together. Do not claim these new boundaries are implemented based on the earlier staff-role tests.
+Broad staff write policies and registrar instructor creation have been replaced with role-specific policies, constraints and server actions. Public projections and authorized reads include canonical academic fields; SMS continues to resolve the selected profile. File exchange remains planned and must reuse these boundaries. The dedicated academic role-context tests provide the current database evidence.
 
 ## Acceptance
 

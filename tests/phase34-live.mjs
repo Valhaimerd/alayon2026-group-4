@@ -32,9 +32,10 @@ try {
   const refresh = await staff.auth.refreshSession();
   assert.equal(refresh.error, null, "Session refresh must succeed");
   const role = await staff
-    .from("staff_members")
+    .from("account_roles")
     .select("user_id")
     .eq("user_id", login.data.user.id)
+    .eq("role", "registrar")
     .single();
   assert.equal(
     role.error,
@@ -56,6 +57,7 @@ try {
     });
   assert.ok(publicWrite.error, "Anonymous room writes must fail");
   const input = {
+    kind: "activity",
     room_id: "g3",
     instructor_name: "TEST",
     starts_at: "2030-01-09T12:00:00+08:00",

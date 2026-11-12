@@ -17,4 +17,5 @@ begin
   end if;
   insert into public.staff_members(user_id) values(staff_id)
   on conflict(user_id) do nothing;
+  insert into public.account_roles(user_id,role) values(staff_id,'registrar') on conflict do nothing;
 end $$;

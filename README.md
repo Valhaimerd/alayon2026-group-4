@@ -17,11 +17,15 @@ Copy `.env.example` to `.env.local` and configure Supabase for persisted schedul
 
 Supabase migrations live in `supabase/migrations/`. They are already applied to the connected project; do not reapply them manually. Review future migrations before merging to the production branch. Run `tests/database.sql` only on a known test target or as the documented rolled-back verification; it creates temporary test records inside a transaction.
 
+Academic setup, role rules and the save RPC are documented in [academic setup](docs/ACADEMIC-SETUP.md). Administrators configure actual terms/sections and link confirmed instructor accounts; registrars select the predefined subjects.
+
 See [product](docs/PRODUCT.md), [plan](docs/PLAN.md), and [decisions](docs/DECISIONS.md).
+
+Signed-in users open the circular profile button in the explorer to update their display name, change their password, and enable optional SMS or authenticator-app MFA. SMS codes use HaturikoSMS directly and require the server credential described in [account settings and MFA](docs/ACCOUNT-SETTINGS.md).
 
 ## Welcome page and scroll motion
 
-Open / in the running app (/welcome redirects there), or open [public/welcome.html](public/welcome.html) directly in a browser for the registrar welcome reference. GSAP 3.13.0 and Lenis 1.3.27 load from pinned CDN URLs. If a CDN is unavailable, the page retains native scrolling and readable content. Explore links to the map at /explore, and the staff link opens its sign-in dialog at /explore?signin=1. The legacy /staff URL redirects to the same dialog.
+Open / in the running app (/welcome redirects there), or open [public/welcome.html](public/welcome.html) directly in a browser for the registrar welcome reference. GSAP 3.13.0 and Lenis 1.3.27 load from pinned CDN URLs. If a CDN is unavailable, the page retains native scrolling and readable content. Explore links to the map at /explore, and the sign-in link opens the general account dialog at /explore?signin=1. The legacy /staff URL redirects to the same dialog.
 
 The welcome page uses one GSAP ticker for both Lenis and ScrollTrigger. Its rooms/classes/schedules typography stage, masked headline, moving room/class/time labels, preview cursor following, and traveling Explore button respect reduced motion. Touch scrolling stays native; smoothing is for wheel input. The Explore button moves between hero, navbar, and final section.
 
