@@ -4,7 +4,7 @@ This is the working backlog for the five-hour competition build. Read the [propo
 
 ## Current execution summary
 
-Map, public schedule view, staff screens, database policies and constraints, PWA foundation, and notification integration are implemented. See [development status](DEVELOPMENT-STATUS.md) for verification and remaining setup. Task checkboxes below remain acceptance work where not fully verified: staff browser flows need the first Auth account; device pinch/install/update checks, simultaneous browser booking submissions, and SMS delivery are not yet verified. No live SMS was sent and no app deployment was pushed.
+Map, public schedule view, staff screens, database policies and constraints, PWA foundation, and notification integration are implemented. Phase 3's local staff access and Phase 4's same-day booking workflow are verified; see [development status](DEVELOPMENT-STATUS.md) for evidence. Production environment configuration, device pinch/install/update checks, simultaneous browser-tab submissions, and SMS delivery remain unverified. The initial implementation was pushed to `main`; the latest verification documentation is local until pushed.
 
 ## Working assumptions
 
@@ -37,22 +37,22 @@ Map, public schedule view, staff screens, database policies and constraints, PWA
 
 ## 3. Supabase data and staff access
 
-**Status:** needs project/environment verification before remote changes. **Depends on:** confirmed project target; coordinate room IDs with task 1.
+**Status:** local access verified; production environment and integration settings still need confirmation. **Depends on:** confirmed project target; coordinate room IDs with task 1.
 
 - [ ] Confirm the Supabase project and whether GitHub migrations deploy to production. Keep preview writes away from production. Use local/test data where practical.
-- [ ] Define the smallest room, booking, and staff authorization model needed for one-time bookings. Store draft/published state, capacity, room, activity, start/end, and staff ownership or role as needed. Agree how the initial staff account is provisioned without enabling public self-promotion.
-- [ ] Create reviewed migration(s) and row-level security policies. Public reads expose only published schedule fields; unauthenticated and non-staff users cannot write or read private instructor contact data.
-- [ ] Add server-side Supabase configuration and staff sign-in; keep privileged credentials server-side. Preserve existing environment values and document required names without values.
+- [x] Define the smallest room, booking, and staff authorization model needed for one-time bookings. Store draft/published state, capacity, room, activity, start/end, and staff ownership or role as needed. Agree how the initial staff account is provisioned without enabling public self-promotion.
+- [x] Create reviewed migration(s) and row-level security policies. Public reads expose only published schedule fields; unauthenticated and non-staff users cannot write or read private instructor contact data.
+- [x] Add server-side Supabase configuration and staff sign-in; keep privileged credentials server-side. Preserve existing environment values and document required names without values.
 
 **Acceptance:** public reads return published records only; unauthorized writes and draft/private reads fail; an authorized staff member can sign in and write permitted data. Test policies against anonymous, non-staff, and staff contexts, and verify migration application and rollback strategy on a nonproduction target where available. Record deployment status.
 
 ## 4. Create and publish a booking
 
-**Status:** ready after task 3 and a concrete demo time range are established. **Depends on:** tasks 2 and 3.
+**Status:** complete for the local same-day, one-time booking scope. Weekly recurrence is deferred. **Depends on:** tasks 2 and 3.
 
-- [ ] Provide a staff-only form to create and edit a one-time class or exam with room, activity, start/end, class size, and instructor information needed for the demo.
-- [ ] Validate required fields, end after start, room capacity, and overlapping published bookings; allow an end time equal to another booking's start. Enforce conflict protection in the database or an equivalent atomic transaction, not just the browser.
-- [ ] Publish valid bookings and make them appear in the public room view. Display actionable validation, loading, and failure states. Preserve drafts if the chosen model supports them.
+- [x] Provide a staff-only form to create and edit a one-time class or exam with room, activity, start/end, class size, and instructor information needed for the demo.
+- [x] Validate required fields, end after start, room capacity, and overlapping published bookings; allow an end time equal to another booking's start. Enforce conflict protection in the database or an equivalent atomic transaction, not just the browser.
+- [x] Publish valid bookings and make them appear in the public room view. Display actionable validation, loading, and failure states. Preserve drafts if the chosen model supports them.
 - [ ] If time permits, add weekly recurrence within a term with conflict checks for every occurrence; otherwise state the one-time limitation in the demo.
 
 **Acceptance:** a valid booking survives refresh and appears publicly only after publication; an over-capacity or overlapping booking cannot be published; adjacent bookings can; concurrent attempts cannot both create conflicting published bookings. Test invalid input, anonymous access, refresh, adjacent/overlapping times, and concurrent submissions. Do not claim recurring support until tested.
