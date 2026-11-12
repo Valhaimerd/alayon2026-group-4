@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import "lenis/dist/lenis.css";
 import "./globals.css";
+import SmoothScroll from "./smooth-scroll";
 import Pwa from "./pwa";
 
 export const metadata: Metadata = {
@@ -11,6 +13,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en">
       <body>
+        <SmoothScroll />
         <Pwa />
         {children}
       </body>
