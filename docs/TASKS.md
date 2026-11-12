@@ -4,7 +4,7 @@ This is the working backlog for the expanded competition build. Read the [propos
 
 ## Current execution summary
 
-Map, public schedule view, staff screens, database policies and constraints, PWA foundation, and notification integration are implemented. Phase 3's local staff access and Phase 4's same-day booking workflow are verified; see [development status](DEVELOPMENT-STATUS.md) for evidence. Production environment configuration, device pinch/install/update checks, simultaneous browser-tab submissions, and SMS delivery remain unverified. The initial implementation was pushed to `main`; the latest verification documentation is local until pushed.
+Map, public schedule view, staff screens, database policies and constraints, PWA foundation, and notification integration are implemented. Phase 3's local staff access and Phase 4's same-day booking workflow are verified; see [development status](DEVELOPMENT-STATUS.md) for evidence. Production environment configuration, device pinch/install/update checks, simultaneous browser-tab submissions, and SMS delivery remain unverified. The initial implementation was pushed to `main`; the workspace wizard, welcome integration and verification evidence are included in the current source tree.
 
 ## Working assumptions
 

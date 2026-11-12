@@ -45,4 +45,4 @@ The full same-day staff scheduling browser flow is now verified as described abo
 
 ## Deployment
 
-The initial implementation was pushed to GitHub `main` in commit `a6ab98f`. Set Supabase environment values in the intended Vercel environment and verify deployment separately. Migration filenames match the versions applied through Supabase MCP. The Phase 3 provisioning script and status update are local until committed and pushed.
+The initial implementation was pushed to GitHub `main` in commit `a6ab98f`. The workspace wizard and the animated welcome branch are integrated for the next `main` update. Set Supabase environment values in the intended Vercel environment and verify the resulting deployment separately. Migration filenames match the versions applied through Supabase MCP.

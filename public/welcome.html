@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#174a35">
-<meta name="description" content="Welcome to CISC SchedFlow, the registrar's room and class scheduling workspace for Central Mindanao University.">
-<title>Welcome to CISC SchedFlow · CMU</title>
+<meta name="description" content="Welcome to CISC Schedflow, the registrar's room and class scheduling workspace for Central Mindanao University.">
+<title>Welcome to CISC Schedflow · CMU</title>
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icon-192.png">
 <style>
-/* Served at /welcome (rewrite in next.config.ts). No build tools or external fonts required.
+/* Served at / (rewrite in next.config.ts). No build tools or external fonts required.
    GSAP and ScrollTrigger load from a pinned CDN; native animation is the offline fallback.
-   "Explore" calls to action open the room map (/); staff sign-in lives at /staff.
+   This welcome page links to the existing map and staff workspace.
    Brand tokens come from the supplied Stitch screen. All schedules are illustrative. */
 :root{--green:#174a35;--deep:#103b2a;--ink:#16382b;--yellow:#fed34d;--cream:#f6f5ef;--muted:#65746c;--line:#dce2d8;--ease:cubic-bezier(.2,.7,.2,1)}
 *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:100px}body{margin:0;overflow-x:clip;background:var(--cream);color:var(--ink);font-family:Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased}button,a{-webkit-tap-highlight-color:transparent}a{color:inherit;text-decoration:none}button{font:inherit}button,a{touch-action:manipulation}a:focus-visible,button:focus-visible{outline:3px solid #b57600;outline-offset:5px}::selection{background:var(--yellow);color:var(--deep)}.wrap{width:min(1280px,calc(100% - 96px));margin:auto}.skip{position:fixed;top:-80px;left:20px;z-index:100;background:var(--yellow);padding:15px}.skip:focus{top:12px}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:2px;font-weight:700;display:flex;align-items:center;gap:12px}.eyebrow:before{content:"";width:23px;height:2px;background:currentColor}.arrow{display:inline-block;font-size:20px;line-height:1;transition:transform .25s}.button{min-height:50px;padding:16px 22px;display:inline-flex;align-items:center;justify-content:center;gap:28px;border-radius:5px;font-size:13px;font-weight:700;transition:background .2s,transform .2s}.button:hover .arrow{transform:translate(3px,-3px)}.button:hover{transform:translateY(-2px)}.button-yellow{background:var(--yellow);color:var(--deep)}.button-yellow:hover{background:#ffe07c}.button-green{background:var(--green);color:white}.button-green:hover{background:var(--deep)}.quiet-link{font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:12px}.quiet-link:hover{text-decoration:underline;text-underline-offset:5px}
@@ -60,33 +60,83 @@ html{scroll-padding-top:124px}.journey-visual{top:135px}.story-step{scroll-margi
 .cta-managed [data-cta-place][aria-hidden="false"]{visibility:visible}
 .cta-flight{position:fixed;z-index:100;display:flex;align-items:center;justify-content:center;gap:20px;overflow:hidden;white-space:nowrap;pointer-events:none;background:var(--yellow);color:var(--deep);font-weight:700;padding:12px 20px;min-height:0;border:1px solid #dbb131;box-shadow:0 8px 24px #173c2a20;transform:none!important}
 .cta-flight-label{min-width:0;overflow:hidden;text-overflow:ellipsis}.cta-flight-arrow{flex-shrink:0;font-size:20px}
+
+/* Lenis 1.3.27: keep native document scrolling, sticky positioning, and anchors. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+
+.lenis [data-lenis-prevent],
+.lenis [data-lenis-prevent-wheel],
+.lenis [data-lenis-prevent-touch],
+.lenis [data-lenis-prevent-vertical],
+.lenis [data-lenis-prevent-horizontal] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+.lenis.lenis-autoToggle {
+  transition-property: overflow;
+  transition-duration: 1ms;
+  transition-behavior: allow-discrete;
+}
+
+html.lenis{scroll-behavior:auto!important}
+.hero-line{display:block;overflow:clip;padding-bottom:.14em;margin-bottom:-.14em;transform-origin:left center}.hero-line>span{display:block}.hero-line em{white-space:nowrap}
+.kinetic{height:215svh;position:relative;background:var(--deep);color:var(--cream)}
+.kinetic-pin{position:sticky;top:104px;height:calc(100svh - 104px);min-height:510px;overflow:hidden;isolation:isolate;display:flex;flex-direction:column;justify-content:center;padding:35px 0}
+.kinetic-pin:before{content:"";position:absolute;inset:0;background-image:linear-gradient(#ffffff08 1px,transparent 1px),linear-gradient(90deg,#ffffff08 1px,transparent 1px);background-size:64px 64px;z-index:-2}
+.kinetic-meta,.kinetic-bottom{display:flex;justify-content:space-between;align-items:center;gap:25px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;position:relative;z-index:2}
+.kinetic-meta{position:absolute;top:32px;left:48px;right:48px;color:#d0dfcc}.kinetic-meta span:last-child{color:var(--yellow)}
+.kinetic-type{width:100%;margin:30px 0;font-weight:800;font-size:clamp(64px,11.6vw,170px);line-height:.92;letter-spacing:-.075em;text-align:center;position:relative;z-index:1}
+.kinetic-word{display:block;transform-origin:center;white-space:nowrap}.kinetic-row-two{color:var(--yellow)}.kinetic-row-three{-webkit-text-stroke:1px #e6eede;color:transparent}
+.kinetic-orbit{position:absolute;width:clamp(320px,48vw,700px);aspect-ratio:1;border:1px solid #a1c39d45;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%);z-index:-1}.kinetic-orbit:before{content:"";position:absolute;inset:30px;border:1px solid #a1c39d20;border-radius:50%}.kinetic-orbit:after{content:"";position:absolute;left:12%;top:15%;width:12px;height:12px;background:var(--yellow);border-radius:50%;box-shadow:0 0 24px #fed34d66}
+.kinetic-bottom{position:absolute;bottom:32px;left:48px;right:48px;color:#d0dfcc;letter-spacing:.3px;text-transform:none;line-height:1.6}.kinetic-bottom p{margin:0;max-width:290px}.kinetic-meter{width:160px;height:2px;background:#9ab29140;position:relative;overflow:hidden}.kinetic-meter span{display:block;width:100%;height:100%;background:var(--yellow);transform:scaleX(.05);transform-origin:left}
+.scene-label{position:absolute;font-size:9px;letter-spacing:1px;border:1px solid #9ab29166;border-radius:30px;padding:10px 15px;background:#123d2be6;z-index:2}.label-room{left:10%;top:27%;transform:rotate(-8deg)}.label-class{right:12%;top:42%;transform:rotate(7deg)}.label-time{left:18%;bottom:23%;background:var(--yellow);color:var(--deep);transform:rotate(-5deg)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.button-primary{position:relative;overflow:hidden}.button-primary:before{content:"";position:absolute;top:-20%;bottom:-20%;left:0;width:30%;background:linear-gradient(90deg,transparent,#fff8,transparent);transform:translateX(var(--button-sheen,-160%)) skewX(-20deg);pointer-events:none}
+@media(max-width:760px){.kinetic{height:165svh}.kinetic-pin{top:90px;height:calc(100svh - 90px);min-height:460px}.kinetic-meta,.kinetic-bottom{left:20px;right:20px;font-size:8px;gap:20px}.kinetic-type{font-size:clamp(64px,15vw,110px)}.kinetic-meter{width:70px;flex-shrink:0}.scene-label{font-size:8px;padding:8px 11px}.label-room{left:5%;top:25%}.label-class{right:4%;top:48%}.label-time{left:8%;bottom:24%}}
+@media(prefers-reduced-motion:reduce){.kinetic{height:auto}.kinetic-pin{position:relative;top:0;min-height:560px;height:auto}.kinetic-type{padding:100px 0}.kinetic-meter span{transform:scaleX(1)}.hero-line{transform:none!important;opacity:1!important}}
+
+.hero-copy{min-width:0}.hero h1{max-width:100%;width:100%}
+@media(max-width:360px){.hero h1{font-size:44px;letter-spacing:-2.7px}}
+.kinetic-row-three{font-size:.82em}
 </style>
 </head>
 <body id="top">
 <a class="skip" href="#main">Skip to content</a>
 <header><div class="wrap nav">
-<a class="brand" href="#top" aria-label="CISC SchedFlow home"><span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 2v6M17 2v6M3 11h18M7 15h3M14 15h3M7 18h3"/></svg></span><div><div class="brand-name"><span class="brand-prefix">CISC </span>SchedFlow<span class="brand-dot">.</span></div><div class="brand-sub"><span class="brand-sub-full">CISC · Central Mindanao University</span><span class="brand-sub-short">CISC · CMU</span></div></div></a>
-<nav class="nav-links" aria-label="Main navigation"><a href="#overview">The workspace</a><a href="#workflow">How it works</a><a href="/explore?signin=1">Staff sign in <span aria-hidden="true">↗</span></a></nav>
-<a class="button button-yellow nav-cta" data-cta-place="nav" href="/explore" aria-label="Explore CISC SchedFlow"><span>Explore<span class="nav-cta-detail"> CISC SchedFlow</span></span><span class="arrow" aria-hidden="true">↗</span></a>
+<a class="brand" href="#top" aria-label="CISC Schedflow home"><span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 2v6M17 2v6M3 11h18M7 15h3M14 15h3M7 18h3"/></svg></span><div><div class="brand-name"><span class="brand-prefix">CISC </span>Schedflow<span class="brand-dot">.</span></div><div class="brand-sub"><span class="brand-sub-full">CISC · Central Mindanao University</span><span class="brand-sub-short">CISC · CMU</span></div></div></a>
+<nav class="nav-links" aria-label="Main navigation"><a href="#overview">The workspace</a><a href="#workflow">How it works</a><a href="#welcome">Welcome <span aria-hidden="true">↗</span></a></nav>
+<a class="button button-yellow nav-cta" data-cta-place="nav" href="/explore" aria-label="Explore CISC Schedflow"><span>Explore<span class="nav-cta-detail"> CISC Schedflow</span></span><span class="arrow" aria-hidden="true">↗</span></a>
 </div><div class="scroll-progress" aria-hidden="true" id="scroll-progress"></div></header>
 <main id="main">
 <div class="wrap hero">
-<section class="hero-copy"><div class="eyebrow">Welcome to CISC SchedFlow</div><h1>A clearer space<br>for every<br><em>class to happen.</em></h1><p class="hero-description">Rooms, classes, and everything in between. Your registrar workspace for bringing the CISC schedule together.</p><div class="hero-actions"><a data-cta-place="hero" class="button button-yellow button-primary" href="/explore">Explore CISC SchedFlow <span class="arrow" aria-hidden="true">↗</span></a><a class="quiet-link" href="#overview">Take a look around <span aria-hidden="true">↓</span></a></div><p class="hero-access-note">Department staff? <a class="quiet-link" href="/explore?signin=1">Sign in to manage schedules <span aria-hidden="true">↗</span></a></p><div class="hero-bottom"><div class="cmu-monogram" aria-hidden="true">CMU</div><div class="university">Central Mindanao University<br><span>College of Information Sciences and Computing</span></div></div></section>
-<div class="hero-art" aria-label="Illustrative preview of the CISC room and class scheduling workspace"><div class="orb" aria-hidden="true"></div><div class="art-kicker"><span>Your campus, connected.</span><span>Room & class scheduling</span></div>
-<div class="preview-tilt"><div class="workspace"><div class="window-bar"><div class="window-dots" aria-hidden="true"><i></i><i></i><i></i></div><strong>CISC SchedFlow</strong><span>Registrar workspace</span></div><div class="workspace-body"><div class="workspace-heading"><div><h2>A place for every class.</h2><p>CISC Building · Floor plan & timetable</p></div><span class="sample-label">Sample preview</span></div><div class="plan-layout"><div class="map"><div class="map-head"><strong>2nd floor</strong><span aria-hidden="true">N ↑</span></div><div class="rooms"><div class="room">Lab 23<small>Computer lab</small></div><div class="hallway">CENTRAL HALLWAY</div><div class="room" style="grid-column:3">Lab 26<small>Computer lab</small></div><div class="room selected">Lab 22<small>Selected room</small></div><div class="room" style="grid-column:3">Lab 25<small>Computer lab</small></div><div class="room">Lab 21<small>Computer lab</small></div><div class="room" style="grid-column:3">Lab 24<small>Computer lab</small></div></div><div class="map-foot"><span>Selected</span><span>Other rooms</span></div></div><div class="mini-schedule"><h3>Lab 22 · Monday</h3><p>A little structure. A clearer day.</p><div class="slot"><div class="slot-time">08:00 — 11:00 AM</div><strong>CS 211</strong><small>Data Structures · BSCS 2A</small></div><div class="slot yellow"><div class="slot-time">01:00 — 04:00 PM</div><strong>IT 312</strong><small>Web Systems · BSIT 3B</small></div><div class="open-slot">An open slot for what's next</div></div></div><div class="workspace-foot"><span><i class="dot" aria-hidden="true"></i> Room & timetable, side by side</span><span>Illustrative schedule</span></div></div></div></div>
-<div class="floating-note"><span class="check" aria-hidden="true">✓</span><div><strong>Everything in its place.</strong><small>From the first draft to the final timetable.</small></div></div><div class="art-caption"><span class="preview-caption">Made for the people who keep campus moving.</span><span aria-hidden="true">↗</span></div></div>
+<section class="hero-copy"><div class="eyebrow">Welcome to CISC Schedflow</div><h1><span class="hero-line"><span>Room &amp; class</span></span><span class="hero-line"><span>scheduling,</span></span><span class="hero-line"><span><em>for CISC.</em></span></span></h1><p class="hero-description">Manage CISC room assignments and class timetables. Create, review, and edit schedules from one registrar workspace.</p><div class="hero-actions"><a data-cta-place="hero" class="button button-yellow button-primary" href="/explore">Explore CISC Schedflow <span class="arrow" aria-hidden="true">↗</span></a><a class="quiet-link" href="#overview">Take a look around <span aria-hidden="true">↓</span></a></div><p class="hero-access-note">Department staff? <a class="quiet-link" href="/explore?signin=1">Sign in to manage schedules <span aria-hidden="true">↗</span></a></p><div class="hero-bottom"><div class="cmu-monogram" aria-hidden="true">CMU</div><div class="university">Central Mindanao University<br><span>College of Information Sciences and Computing</span></div></div></section>
+<div class="hero-art" aria-label="Illustrative preview of the CISC room and class scheduling workspace"><div class="orb" aria-hidden="true"></div><div class="art-kicker"><span>CISC room &amp; class schedules</span><span>Room & class scheduling</span></div>
+<div class="preview-tilt"><div class="workspace"><div class="window-bar"><div class="window-dots" aria-hidden="true"><i></i><i></i><i></i></div><strong>CISC Schedflow</strong><span>Registrar workspace</span></div><div class="workspace-body"><div class="workspace-heading"><div><h2>Room assignments & schedules</h2><p>CISC Building · Floor plan & timetable</p></div><span class="sample-label">Sample preview</span></div><div class="plan-layout"><div class="map"><div class="map-head"><strong>2nd floor</strong><span aria-hidden="true">N ↑</span></div><div class="rooms"><div class="room">Lab 23<small>Computer lab</small></div><div class="hallway">CENTRAL HALLWAY</div><div class="room" style="grid-column:3">Lab 26<small>Computer lab</small></div><div class="room selected">Lab 22<small>Selected room</small></div><div class="room" style="grid-column:3">Lab 25<small>Computer lab</small></div><div class="room">Lab 21<small>Computer lab</small></div><div class="room" style="grid-column:3">Lab 24<small>Computer lab</small></div></div><div class="map-foot"><span>Selected</span><span>Other rooms</span></div></div><div class="mini-schedule"><h3>Lab 22 · Monday</h3><p>Scheduled classes for the selected room.</p><div class="slot"><div class="slot-time">08:00 — 11:00 AM</div><strong>CS 211</strong><small>Data Structures · BSCS 2A</small></div><div class="slot yellow"><div class="slot-time">01:00 — 04:00 PM</div><strong>IT 312</strong><small>Web Systems · BSIT 3B</small></div><div class="open-slot">Available time slot</div></div></div><div class="workspace-foot"><span><i class="dot" aria-hidden="true"></i> Room & timetable, side by side</span><span>Illustrative schedule</span></div></div></div></div>
+<div class="floating-note"><span class="check" aria-hidden="true">✓</span><div><strong>Room & class scheduling</strong><small>Create and edit class schedules.</small></div></div><div class="art-caption"><span class="preview-caption">Registrar view: CISC floor plan & timetable.</span><span aria-hidden="true">↗</span></div></div>
 </div>
-<div class="context-strip"><div class="wrap context-inner"><div class="context-label">ONE WORKSPACE.<br>A MORE CONNECTED SCHEDULE.</div><div class="context-item"><span class="context-num">01</span> Create with clarity</div><div class="context-item"><span class="context-num">02</span> See the whole picture</div><div class="context-item"><span class="context-num">03</span> Make room for change</div></div></div>
-<section class="wrap intro" id="overview"><div class="eyebrow reveal">Less juggling. More perspective.</div><div class="section-heading reveal"><h2>The details belong together.<br>Now, they have a place.</h2><p>A focused view of the spaces and schedules you coordinate, designed around the registrar's day.</p></div><div class="features"><article class="feature reveal"><span class="feature-icon" aria-hidden="true">⌘</span><h3>Know the space.</h3><p>See the CISC floor plan alongside the timetable. Put each class in context, right down to its room.</p><small>Floor plan & room schedules</small></article><article class="feature reveal"><span class="feature-icon" aria-hidden="true">＋</span><h3>Build the schedule.</h3><p>Bring a room, a course, a section, and a time together. Give the next class its place in the week.</p><small>Create class schedules</small></article><article class="feature reveal"><span class="feature-icon" aria-hidden="true">↻</span><h3>Keep things moving.</h3><p>Plans change. Revisit a class, adjust its details, and keep the timetable in view as you work.</p><small>Edit & coordinate</small></article></div></section>
-<section class="journey" id="workflow" aria-labelledby="journey-title"><div class="wrap journey-grid"><div class="journey-visual"><div class="eyebrow">From a plan to a place.</div><h2 id="journey-title">A schedule that moves<br>with your day.</h2><div class="story-demo"><div class="demo-top"><strong id="demo-title">Create a class schedule</strong><span>Illustrative preview</span></div><div class="demo-details"><div><small>Course & section</small><strong>CS 211 · BSCS 2A</strong></div><div><small>Assigned space</small><strong id="demo-room">Lab 22 · 2nd floor</strong></div></div><div class="demo-time"><span class="check" id="demo-symbol" aria-hidden="true">＋</span><div><strong id="demo-time">Monday · 8:00–11:00 AM</strong><small id="demo-description">Start with the class, room, and time.</small></div></div><div class="demo-status"><span id="demo-footer">A new place in the week.</span><span class="status-pill" id="demo-pill">Draft schedule</span></div></div><div class="step-indicators" aria-label="Explore scheduling steps"><button type="button" data-step-link="0" aria-current="step">01 — Create</button><button type="button" data-step-link="1">02 — Review</button><button type="button" data-step-link="2">03 — Edit</button></div><p class="journey-note">Sample course and times shown to introduce the workflow.</p></div><div class="journey-steps"><article class="story-step" id="step-create" data-step="0"><span class="step-number">01 / Create</span><h3>Start with the class.<br>Give it a space.</h3><p>Bring the course, section, room, and meeting time into one schedule. A clear starting point for the week ahead.</p><span class="step-tag">The first draft starts here</span></article><article class="story-step" id="step-review" data-step="1"><span class="step-number">02 / Review</span><h3>Step back.<br>See how it all fits.</h3><p>Look at the room and its timetable together. Review the details and check for overlapping classes before moving forward.</p><span class="step-tag">A little perspective goes a long way</span></article><article class="story-step" id="step-edit" data-step="2"><span class="step-number">03 / Edit</span><h3>When plans change,<br>stay in the flow.</h3><p>Revisit an existing class schedule to adjust the room or meeting time. Keep the details together as the semester takes shape.</p><span class="step-tag">Room for the next adjustment</span></article></div></div></section>
-<section class="welcome wrap" id="welcome"><div class="eyebrow reveal">Built around the registrar's day</div><h2 class="reveal">Every great semester<br>starts with <em>a clear plan.</em></h2><p class="reveal">Welcome to a more organized view of CISC scheduling. A place to create, review, and keep things moving.</p><div><a data-cta-place="bottom" class="button button-yellow button-primary" href="/explore">Explore CISC SchedFlow <span class="arrow" aria-hidden="true">↗</span></a><div class="welcome-note">CISC SchedFlow · Room & Class Scheduling System</div></div></section>
+<div class="context-strip"><div class="wrap context-inner"><div class="context-label">CISC SCHEDFLOW.<br>ROOM & CLASS SCHEDULING.</div><div class="context-item"><span class="context-num">01</span> Create class schedules</div><div class="context-item"><span class="context-num">02</span> Review room timetables</div><div class="context-item"><span class="context-num">03</span> Edit schedule details</div></div></div>
+<section class="wrap intro" id="overview"><div class="eyebrow reveal">Rooms, classes, and timetables</div><div class="section-heading reveal"><h2>Manage CISC rooms<br>and class schedules.</h2><p>View the building floor plan, assign rooms to classes, and review meeting times in the registrar workspace.</p></div><div class="features"><article class="feature reveal"><span class="feature-icon" aria-hidden="true">⌘</span><h3>View the floor plan.</h3><p>Locate CISC classrooms and computer laboratories, then view the schedule for a selected room.</p><small>Floor plan & room schedules</small></article><article class="feature reveal"><span class="feature-icon" aria-hidden="true">＋</span><h3>Create a class schedule.</h3><p>Enter the course, section, assigned room, and meeting time for a class.</p><small>Create class schedules</small></article><article class="feature reveal"><span class="feature-icon" aria-hidden="true">↻</span><h3>Edit schedule details.</h3><p>Update room assignments or meeting times while reviewing the room timetable.</p><small>Edit room & time assignments</small></article></div></section>
+<section class="kinetic" aria-labelledby="kinetic-title"><h2 class="sr-only" id="kinetic-title">CISC rooms, classes, and schedules.</h2><div class="kinetic-pin"><div class="kinetic-meta"><span>CISC Schedflow / Registrar workspace</span><span>Rooms. Classes. Schedules.</span></div><div class="kinetic-orbit" aria-hidden="true"></div><div class="kinetic-type" aria-hidden="true"><span class="kinetic-word kinetic-row-one">ROOMS.</span><span class="kinetic-word kinetic-row-two">CLASSES.</span><span class="kinetic-word kinetic-row-three">SCHEDULES.</span></div><span class="scene-label label-room" aria-hidden="true">ROOM / LAB 22</span><span class="scene-label label-class" aria-hidden="true">CLASS / CS 211</span><span class="scene-label label-time" aria-hidden="true">TIME / 08:00 AM</span><div class="kinetic-bottom"><p>Assign rooms to classes.<br>Review meeting times.</p><div class="kinetic-meter" aria-hidden="true"><span></span></div><span>CISC room & class scheduling.</span></div></div></section>
+<section class="journey" id="workflow" aria-labelledby="journey-title"><div class="wrap journey-grid"><div class="journey-visual"><div class="eyebrow">Class scheduling workflow</div><h2 id="journey-title">Create, review,<br>and edit schedules.</h2><div class="story-demo"><div class="demo-top"><strong id="demo-title">Create a class schedule</strong><span>Illustrative preview</span></div><div class="demo-details"><div><small>Course & section</small><strong>CS 211 · BSCS 2A</strong></div><div><small>Assigned space</small><strong id="demo-room">Lab 22 · 2nd floor</strong></div></div><div class="demo-time"><span class="check" id="demo-symbol" aria-hidden="true">＋</span><div><strong id="demo-time">Monday · 8:00–11:00 AM</strong><small id="demo-description">Start with the class, room, and time.</small></div></div><div class="demo-status"><span id="demo-footer">Course, room, and meeting time.</span><span class="status-pill" id="demo-pill">Draft schedule</span></div></div><div class="step-indicators" aria-label="Explore scheduling steps"><button type="button" data-step-link="0" aria-current="step">01 — Create</button><button type="button" data-step-link="1">02 — Review</button><button type="button" data-step-link="2">03 — Edit</button></div><p class="journey-note">Sample course and times shown to introduce the workflow.</p></div><div class="journey-steps"><article class="story-step" id="step-create" data-step="0"><span class="step-number">01 / Create</span><h3>Enter the class.<br>Assign a room and time.</h3><p>Select the course and section, assign a CISC room, and enter the class meeting time.</p><span class="step-tag">Course / section / room / time</span></article><article class="story-step" id="step-review" data-step="1"><span class="step-number">02 / Review</span><h3>Review the room<br>and class timetable.</h3><p>Review the selected room and meeting time alongside its existing classes to check for schedule overlaps.</p><span class="step-tag">Room timetable review</span></article><article class="story-step" id="step-edit" data-step="2"><span class="step-number">03 / Edit</span><h3>Update the room<br>or meeting time.</h3><p>Select an existing class schedule, revise its room assignment or meeting time, and review the updated details.</p><span class="step-tag">Edit an existing schedule</span></article></div></div></section>
+<section class="welcome wrap" id="welcome"><div class="eyebrow reveal">CISC registrar workspace</div><h2 class="reveal">Manage rooms.<br>Organize <em>class schedules.</em></h2><p class="reveal">View the CISC floor plan, create class schedules, and update room and time assignments.</p><div><a data-cta-place="bottom" class="button button-yellow button-primary" href="/explore">Explore CISC Schedflow <span class="arrow" aria-hidden="true">↗</span></a><div class="welcome-note">CISC Schedflow · Room & Class Scheduling System</div></div></section>
 </main>
-<footer><div class="wrap footer-inner"><div class="footer-brand">CISC SchedFlow<span style="color:#86967b">.</span> <span style="font-size:10px;font-weight:400;margin-left:8px">CISC · CMU</span></div><p>Central Mindanao University · College of Information Sciences and Computing</p><a href="#top">Back to top <span aria-hidden="true">↑</span></a></div></footer>
+<footer><div class="wrap footer-inner"><div class="footer-brand">CISC Schedflow<span style="color:#86967b">.</span> <span style="font-size:10px;font-weight:400;margin-left:8px">CISC · CMU</span></div><p>Central Mindanao University · College of Information Sciences and Computing</p><a href="#top">Back to top <span aria-hidden="true">↑</span></a></div></footer>
 <script>
 
 /* GSAP integration for this welcome page only.
    Docs: https://gsap.com/docs/v3/Plugins/ScrollTrigger/
-   All navigation remains on this welcome page; there is no login implementation.
+   Explore opens the map at /explore; staff access opens /explore?signin=1.
    To self-host later, replace the two CDN URLs with local asset URLs. */
 (() => {
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -100,7 +150,7 @@ html{scroll-padding-top:124px}.journey-visual{top:135px}.story-step{scroll-margi
     "symbol": "＋",
     "time": "Monday · 8:00–11:00 AM",
     "description": "Start with the class, room, and time.",
-    "footer": "A new place in the week.",
+    "footer": "Course, room, and meeting time.",
     "pill": "Draft schedule"
   },
   {
@@ -109,7 +159,7 @@ html{scroll-padding-top:124px}.journey-visual{top:135px}.story-step{scroll-margi
     "symbol": "✓",
     "time": "Monday · 8:00–11:00 AM",
     "description": "Review the room and its timetable together.",
-    "footer": "See where the class fits.",
+    "footer": "Review existing room schedules.",
     "pill": "Review schedule"
   },
   {
@@ -118,7 +168,7 @@ html{scroll-padding-top:124px}.journey-visual{top:135px}.story-step{scroll-margi
     "symbol": "↻",
     "time": "Wednesday · 8:00–11:00 AM",
     "description": "An updated meeting day, with the details in view.",
-    "footer": "Keep the semester moving.",
+    "footer": "Updated room and time details.",
     "pill": "Edited draft"
   }
 ];
@@ -131,7 +181,8 @@ html{scroll-padding-top:124px}.journey-visual{top:135px}.story-step{scroll-margi
   }
   links.forEach((link,index) => link.addEventListener('click', () => {
     showStep(index);
-    steps[index].scrollIntoView({behavior:reducedMotion.matches ? 'instant' : 'smooth',block:'start'});
+    if (window.schedflowLenis) window.schedflowLenis.scrollTo(steps[index],{offset:-parseFloat(getComputedStyle(steps[index]).scrollMarginTop),immediate:reducedMotion.matches});
+    else steps[index].scrollIntoView({behavior:reducedMotion.matches ? 'instant' : 'smooth',block:'start'});
   }));
   // Native scroll updates keep the narrative and progress working offline too.
   const progress = document.getElementById('scroll-progress');
@@ -200,7 +251,7 @@ html{scroll-padding-top:124px}.journey-visual{top:135px}.story-step{scroll-margi
       slots.forEach(item=>{item.setAttribute('aria-hidden','true');item.setAttribute('tabindex','-1');});
       flight = document.createElement('div');
       flight.className = 'cta-flight';flight.setAttribute('aria-hidden','true');
-      flight.innerHTML = '<span class="cta-flight-label">Explore CISC SchedFlow</span><span class="cta-flight-arrow">\u2197</span>';
+      flight.innerHTML = '<span class="cta-flight-label">Explore CISC Schedflow</span><span class="cta-flight-arrow">\u2197</span>';
       flight.innerHTML = flight.innerHTML.replace('\u2197',String.fromCharCode(0x2197));
       document.body.appendChild(flight);
       document.documentElement.dataset.ctaLocation = 'moving-to-'+target.dataset.ctaPlace;
@@ -268,14 +319,28 @@ html{scroll-padding-top:124px}.journey-visual{top:135px}.story-step{scroll-margi
       document.head.appendChild(element);
     });
   }
+  function setupLenis(gsap,ScrollTrigger) {
+    if (!window.Lenis || window.schedflowLenis) return;
+    const lenis = new window.Lenis({autoRaf:false,lerp:.085,smoothWheel:true,syncTouch:false,respectReducedMotion:true,anchors:{offset:-document.querySelector('header').offsetHeight-20}});
+    window.schedflowLenis = lenis;
+    document.documentElement.dataset.scrollEngine = 'lenis';
+    lenis.on('scroll',ScrollTrigger.update);
+    const tick=time=>lenis.raf(time*1000);
+    gsap.ticker.add(tick);
+    gsap.ticker.lagSmoothing(0);
+    window.addEventListener('pagehide',()=>{gsap.ticker.remove(tick);lenis.destroy();window.schedflowLenis=null;},{once:true});
+    window.addEventListener('pageshow',event=>{if(event.persisted)setupLenis(gsap,ScrollTrigger);},{once:true});
+  }
   async function enhance() {
     try {
       await loadScript('https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js');
       await loadScript('https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js');
     } catch { nativeReveals(); return; }
+    try { await loadScript('https://cdn.jsdelivr.net/npm/lenis@1.3.27/dist/lenis.min.js'); } catch { /* Native scroll remains available. */ }
     const {gsap,ScrollTrigger} = window;
     if (!gsap || !ScrollTrigger) { nativeReveals(); return; }
     gsap.registerPlugin(ScrollTrigger);
+    setupLenis(gsap,ScrollTrigger);
     document.documentElement.dataset.animationEngine = 'gsap';
     // Media-query contexts automatically revert tweens on preference/layout changes.
     let heroIntroduced = false;
@@ -284,11 +349,29 @@ html{scroll-padding-top:124px}.journey-visual{top:135px}.story-step{scroll-margi
       if (window.scrollY < 100 && !heroIntroduced) {
         heroIntroduced = true;
         gsap.timeline({defaults:{duration:.8,ease:'power3.out'}})
-          .from('.hero-copy > .eyebrow, .hero h1, .hero-description, .hero-actions, .hero-access-note, .hero-bottom',
+          .from('.hero-copy > .eyebrow, .hero-description, .hero-actions, .hero-access-note, .hero-bottom',
             {y:24,autoAlpha:0,stagger:.1,clearProps:'opacity,visibility,transform'})
+          .from('.hero-line > span',{yPercent:110,rotation:3,autoAlpha:0,duration:1,stagger:.12,clearProps:'opacity,visibility,transform'},.1)
           .from('.hero-art',{y:24,autoAlpha:0,duration:1,clearProps:'opacity,visibility,transform'},.15)
           .from('.floating-note',{y:18,autoAlpha:0,duration:.65,clearProps:'opacity,visibility,transform'},.8);
       }
+      const sceneTimeline = gsap.timeline({scrollTrigger:{trigger:'.kinetic',start:()=> 'top '+document.querySelector('header').offsetHeight+'px',end:'bottom bottom',scrub:.7,invalidateOnRefresh:true}});
+      sceneTimeline
+        .fromTo('.kinetic-row-one',{xPercent:-25},{xPercent:20,ease:'none'},0)
+        .fromTo('.kinetic-row-two',{xPercent:22},{xPercent:-20,ease:'none'},0)
+        .fromTo('.kinetic-row-three',{xPercent:-18},{xPercent:17,ease:'none'},0)
+        .fromTo('.kinetic-orbit',{rotation:-45,scale:.8},{rotation:135,scale:1.2,ease:'none'},0)
+        .fromTo('.label-room',{y:40,rotation:-12},{y:-65,rotation:10,ease:'none'},0)
+        .fromTo('.label-class',{y:-30,rotation:10},{y:70,rotation:-12,ease:'none'},0)
+        .fromTo('.label-time',{x:-20,y:35},{x:65,y:-45,ease:'none'},0)
+        .to('.kinetic-meter span',{scaleX:1,ease:'none'},0);
+      gsap.utils.toArray('.hero-line').forEach((line,index)=>{
+        gsap.to(line,{xPercent:index%2===0 ? -15 : 12,opacity:.2,ease:'none',scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:.7}});
+      });
+      gsap.utils.toArray('.button-primary').forEach(button=>{
+        gsap.fromTo(button,{'--button-sheen':'-160%'},{'--button-sheen':'650%',ease:'none',scrollTrigger:{trigger:button,start:'top 90%',end:'bottom 15%',scrub:.6}});
+      });
+
       reveals.forEach(element => {
         gsap.from(element,{y:28,autoAlpha:0,duration:.8,ease:'power3.out',
           clearProps:'opacity,visibility,transform',
