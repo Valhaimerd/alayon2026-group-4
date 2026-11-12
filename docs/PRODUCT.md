@@ -1,14 +1,13 @@
 ﻿# Product
 
-## Confirmed direction
+CISC SchedFlow is a classroom scheduling PWA for a department. Staff create and publish schedules; anyone can view published schedules. The first release targets one building and a five-hour competition build. The map is a priority. Next.js, Vercel, Supabase, and HaturikoSMS are the agreed platform direction.
 
-- Build with Next.js, with Vercel as the deployment target and Supabase as the backend platform.
-- Integrate HaturikoSMS for SMS functionality: https://sms.haturiko.tech/docs
+See the [proposal](CLASS-SCHED-PROPOSAL.md) for scope and [architecture](ARCHITECTURE.md) for technical choices and status.
 
-## Open questions
+## Open decisions
 
-- Who are the users, and what problem does the product solve?
-- Which workflows and features are required for the first release?
-- Which events trigger SMS, who receives them, and what should messages contain?
-- What are the acceptance criteria, consent requirements, delivery expectations, and budget for SMS?
-- Is MFA required, for which users, and must it use SMS?
+- Confirm staff approval authority and account provisioning.
+- Confirm class and exam rules, room data, recurrence, conflicts, and overrides.
+- Notify the assigned instructor when a published room or time changes. Confirm consent, phone number collection, budget, and failure handling in the completed workflow.
+- Determine MFA and offline viewing requirements.
+- Obtain floor plans and sample schedules; identify competition success criteria.

@@ -1,6 +1,6 @@
 # Alayon 2026 Group 4
 
-Next.js application with Supabase and HaturikoSMS planned. Product requirements are being defined.
+CISC SchedFlow: a map-first room scheduling application built with Next.js and Supabase. See [development status](docs/DEVELOPMENT-STATUS.md) for remaining setup and verified behavior.
 
 ## Local setup
 
@@ -11,10 +11,10 @@ npm ci
 npm run dev
 ```
 
-Open http://localhost:3000. Run `npm run lint` and `npm run build` to verify changes.
+Open http://localhost:3000. Run `npm run lint`, `npm test`, and `npm run build` to verify changes.
 
-Copy `.env.example` to `.env.local` when integration credentials are needed. The placeholders are not used by the starter yet. Keep secrets out of Git; the Supabase publishable key is intended for client use, but database passwords, secret keys and the HaturikoSMS key must remain server-side.
+Copy `.env.example` to `.env.local` and configure Supabase for persisted schedules and staff access. Without it the public map uses labeled demo bookings. SMS is integrated but disabled unless `HATURIKOSMS_SEND_ENABLED=true`; configure a test key and `NEXT_PUBLIC_SITE_URL` before testing provider integration. Tests mock SMS requests and send no messages. Keep secrets out of Git and browser code.
 
-Supabase configuration lives in `supabase/`. Database migrations will be added when requirements are known. Review migrations before merging to the production branch.
+Supabase migrations live in `supabase/migrations/`. They are already applied to the connected project; do not reapply them manually. Review future migrations before merging to the production branch. Run `tests/database.sql` only on a known test target or as the documented rolled-back verification; it creates temporary test records inside a transaction.
 
 See [product](docs/PRODUCT.md), [plan](docs/PLAN.md), and [decisions](docs/DECISIONS.md).

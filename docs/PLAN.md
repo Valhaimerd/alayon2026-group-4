@@ -1,23 +1,32 @@
-﻿# Plan
+﻿# Delivery plan
 
-Use a rolling plan: keep later work broad and detail tasks when requirements are known. Build usable workflows end to end.
+The competition build has five hours. Prioritize a working demonstration with scheduling, public viewing, and the map. Time allocations below are targets, not guarantees. Use [implementation tasks](TASKS.md) for dependencies, acceptance criteria, and verification; see also [product](PRODUCT.md), [proposal](CLASS-SCHED-PROPOSAL.md), and [architecture](ARCHITECTURE.md).
 
-## Current phase: Define
+## 1. Establish the demo (approximately 30 minutes)
 
-- [ ] Establish users, workflows, and release scope.
-- [ ] Define SMS scenarios and acceptance criteria.
-- [ ] Define the first implementable task and its verification.
-- [ ] Confirm the Supabase GitHub integration's production deployment setting.
+- Confirm staff account access, room list, schedule rules, and floor plan availability.
+- Use a clearly labeled illustrative floor plan and sample rooms if real material is unavailable.
+- Confirm Supabase deployment configuration and keep preview access separate from production writes.
 
-## Later phases
+## 2. Scheduling slice (approximately 2 hours)
 
-- Foundation: Next.js and Supabase configuration are initialized. Prepare application connections and deployment as needed.
-- Supabase configuration is initialized at the repository root. Define tables and access policies in migrations when requirements are known.
-- Build and verify the first complete workflow, then expand to remaining release requirements.
-- Verify and prepare the release.
+- Connect Supabase, implement staff sign-in, and add reviewed migrations and access policies.
+- Create rooms and bookings, validate input and conflicts, and persist changes.
+- Allow staff to publish; provide public viewing of published schedules.
+- Verify permissions, persistence, conflicts, and concurrent submissions.
 
-## Task readiness and completion
+## 3. Map and PWA (approximately 1.5 hours)
 
-A ready task has an outcome, scope, dependencies, acceptance criteria, and a verification method. Record missing criteria as questions; do not treat assumptions as requirements. A task is done when its criteria are verified and material limitations are recorded.
+- Build a responsive SVG floor-plan canvas with pan, zoom and reset controls, clickable rooms, an accessible room list, and a room schedule panel. Adapt controls and details to mobile.
+- Add manifest, icons, installation support, and a clear offline state. Do not cache private data or queue offline edits.
 
-Review and test database migrations before merging to `main`. If automatic production deployment is enabled, confirm the deployment succeeds in Supabase afterward.
+## 4. SMS and release (approximately 1 hour)
+
+- Connect the prepared HaturikoSMS sender to published room or time changes for the assigned instructor when consent and recipient data are available; report failures without blocking publication. Otherwise document the blocker.
+- Verify mobile and keyboard behavior, core flows, deployment, and demo data. Record limitations.
+
+AI, PDF import, RAG, multi-building support, and external APIs are later work. Recurrence and exam-specific rules depend on available requirements; use a clearly documented limited demo if these cannot be confirmed in time.
+
+## Task readiness
+
+Each task states outcome, scope, dependencies, acceptance criteria, and verification. Mark assumptions and missing criteria. Review and test database migrations before merging to `main`; confirm Supabase deployment if enabled.

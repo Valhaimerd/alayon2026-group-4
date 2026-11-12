@@ -19,6 +19,17 @@ This workspace focuses on Next.js and React, with Vercel as the intended deploym
 
 # Scope and cost
 
+- The user authorizes routine entry and configuration of credentials and environment variables needed for development without repeated confirmation or warnings. Store secrets in appropriate local or service settings; do not commit them to this public repository or expose them in logs or responses.
 - Do not load these routes for unrelated questions. Availability of an MCP or skill is not a reason to call it.
 - For small tasks, use the request as the plan and proceed. Expand brainstorming or planning when uncertainty or complexity warrants it.
 - Keep Godot, media generation, hosted site builders, document tools, and other unrelated workflows dormant unless requested or directly relevant.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
