@@ -97,6 +97,24 @@ export type Booking = {
   date: string;
   start: string;
   end: string;
+  // Staff-only fields; public reads omit them and are always published.
+  published?: boolean;
+  instructorId?: string | null;
+  classSize?: number;
+};
+export type Instructor = { id: string; name: string };
+export type Notice = {
+  id: string;
+  title: string;
+  roomName: string;
+  startsAt: string;
+  state: string;
+};
+export type StaffData = {
+  instructors: Instructor[];
+  notices: Notice[];
+  recent: Booking[];
+  smsEnabled: boolean;
 };
 export const demoBookings: Booking[] = [
   {
@@ -126,7 +144,11 @@ export function roomStatus(
 ) {
   return bookings.some(
     (b) =>
-      b.roomId === roomId && b.date === date && b.start <= time && time < b.end,
+      b.published !== false &&
+      b.roomId === roomId &&
+      b.date === date &&
+      b.start <= time &&
+      time < b.end,
   )
     ? "Occupied"
     : "Available";

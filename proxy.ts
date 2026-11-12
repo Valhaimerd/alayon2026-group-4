@@ -30,4 +30,5 @@ export async function proxy(request: NextRequest) {
   response.headers.set("Cache-Control", "private, no-store");
   return response;
 }
-export const config = { matcher: ["/staff/:path*"] };
+// Refreshes the Supabase session on the workspace, which renders staff tools.
+export const config = { matcher: ["/explore/:path*"] };

@@ -4,7 +4,8 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "CISC SchedFlow",
     short_name: "SchedFlow",
     description: "Building explorer and published room schedules",
-    start_url: "/",
+    // The installed app opens straight to the workspace; browsers land on the welcome page.
+    start_url: "/explore",
     display: "standalone",
     background_color: "#eef2ef",
     theme_color: "#18563f",
