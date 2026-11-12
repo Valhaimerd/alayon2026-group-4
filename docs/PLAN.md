@@ -11,7 +11,7 @@ Use a rolling plan: keep later work broad and detail tasks when requirements are
 
 ## Later phases
 
-- Foundation: initialize Next.js and prepare deployment and Supabase configuration as needed.
+- Foundation: Next.js and Supabase configuration are initialized. Prepare application connections and deployment as needed.
 - Supabase configuration is initialized at the repository root. Define tables and access policies in migrations when requirements are known.
 - Build and verify the first complete workflow, then expand to remaining release requirements.
 - Verify and prepare the release.

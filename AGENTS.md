@@ -14,6 +14,7 @@ This workspace focuses on Next.js and React, with Vercel as the intended deploym
 - Bugs: use systematic-debugging to establish the root cause before changing code. Keep investigation proportional to the problem.
 - API contract changes: use api-contract-keeper. Update documentation with living-docs when documented behavior or setup changes.
 - Completion: run the relevant project checks. Use quality-gate for broad readiness reviews rather than loading it for every small edit.
+- Supabase operations: prefer the Supabase MCP when its tools are available and relevant. Confirm the target project and environment before changes. Keep schema and policy changes in reviewed migrations; do not assume MCP configuration means the current session has access.
 - Vercel operations: use Vercel MCP if its tools are exposed. Configuration alone does not establish availability. Use an installed CLI or another appropriate fallback when necessary, within the user's authorized scope.
 
 # Scope and cost
