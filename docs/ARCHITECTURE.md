@@ -1,16 +1,16 @@
 # Architecture and technology plan
 
-This describes the implementation direction. See [development status](DEVELOPMENT-STATUS.md) for implemented features, verification evidence, and remaining setup; not every planned feature is complete.
+This describes the implementation direction after the Laravel conversion. See [migration notes](LARAVEL-MIGRATION.md) for current setup/contracts and [development status](DEVELOPMENT-STATUS.md) for evidence and remaining setup; not every planned feature is complete.
 
 ## Platform and stack
 
 | Area | Choice | Status and purpose |
 | --- | --- | --- |
-| Application | Next.js App Router, React, TypeScript | Installed: Next.js 16.4.6 and React 19.3.0. Server-render pages by default and use client components for interactive calendars and maps. |
-| Hosting | Vercel | Connected to GitHub; pushes to `main` target production. Preview deployments can support review. |
+| Application | Laravel 13, React 19, Inertia 3, TypeScript, Vite 8 | Laravel supplies Inertia page data; the existing React interface and CSS live in `resources/`. |
+| Hosting | PHP 8.4+ host | Requires a PHP runtime and `public/` document root. Former Next.js/Vercel hosting needs a separate cutover. |
 | Database | Supabase PostgreSQL | Scheduling tables, reviewed migrations, access policies and overlap/capacity checks are applied. |
 | Authentication | Supabase Auth | Explicit administrator/registrar/instructor roles and initial account provisioning are implemented. See development status for account-security and browser evidence. |
-| Data access | Next.js server actions, Supabase JS and SSR clients | Staff mutations are authorized on the server and protected by row-level security. Public date-filtered schedule reads page through the safe published view. |
+| Data access | Laravel controllers/services and Supabase HTTP APIs | User JWTs retain RLS. CSRF-protected writes verify roles/MFA; public reads paginate through the safe published view. |
 | SMS | HaturikoSMS REST API | Sender and publication outbox integrated; sending is disabled by default. Mock and database checks pass; live sending and delivery webhooks remain unverified. |
 | PWA | Web app manifest and native service worker | Manifest, icons and offline fallback implemented; no private data caching or offline edits. Device installation/update validation remains. |
 | Map | Interactive SVG canvas with accessible room list | Both supplied floor references have selectable classroom overlays, pan, zoom, reset, and details. Labels, capacities and geometry are illustrative; map editing is out of scope. |
@@ -22,7 +22,7 @@ This describes the implementation direction. See [development status](DEVELOPMEN
 
 ## System boundaries
 
-The browser requests pages and submits changes to Next.js. Authorized server-side operations read or write Supabase; database policies are an additional access boundary. Published room/time changes enqueue instructor notices transactionally. Sending is controlled by server configuration; a successful provider response means queued, not delivered. Superseded or unpublished changes are not eligible for retry. Public schedule reads use a projection that excludes private contact and staff fields.
+The browser requests Inertia pages and submits CSRF-protected changes to Laravel. Services access Supabase with the user's JWT; database policies remain authoritative. Tokens stay in encrypted Laravel sessions and never enter page props. Published room/time changes enqueue notices transactionally. Provider acceptance means queued, not delivered; obsolete/unpublished notices cannot be retried. Public reads exclude private contact and staff fields.
 
 Published bookings use a PostgreSQL exclusion constraint over half-open time ranges, allowing adjacent bookings and rejecting overlaps in the same room. Capacity is validated in the database. The workspace supports same-day bookings in Philippine time and bounded weekly series expanded into at most 150 independent dated occurrences. A single multi-row insert saves the whole series atomically; a published conflict on any date rejects every row. Editing changes one occurrence, without a persistent recurrence rule or series-wide operations. Drafts may overlap, but cannot be published if a conflict exists.
 
@@ -54,7 +54,7 @@ Recommended initial scope: manifest, icons, install support where available, cac
 
 ## Deployment and environments
 
-The GitHub `main` branch deploys the web application to Vercel. Confirm whether Supabase's separate deploy-to-production integration is enabled; do not assume a web deployment applies a database change. Review migrations before merging and check deployment logs. Configure environment variables independently in local and Vercel environments; do not commit secrets. Preview deployments must not be allowed to modify production data without an explicit environment and access decision.
+Deploy Laravel to a PHP-capable host with HTTPS, `public/` document root, built Vite assets and writable storage/cache. The former Next.js/Vercel workflow is historical; no hosting cutover was performed. Configure environments separately and confirm Supabase migration deployment independently. Keep preview writes isolated from production. See the migration notes for release configuration.
 
 ## Verification strategy
 

@@ -1,6 +1,6 @@
 # Project focus
 
-This workspace focuses on Next.js and React, with Vercel as the intended deployment platform. Inspect the actual project before choosing versions, commands, or dependencies. Preserve its existing conventions and package manager.
+This workspace uses Laravel 13, React, Inertia and Vite after the authorized Next.js conversion. Supabase Auth/PostgreSQL and existing RLS remain authoritative. Use Composer for PHP and npm for frontend dependencies. Deploy on a PHP-capable host with `public/` as document root; the former Next.js/Vercel workflow is historical. Inspect the project before choosing versions, commands or dependencies.
 
 # Task routing
 
@@ -24,12 +24,9 @@ This workspace focuses on Next.js and React, with Vercel as the intended deploym
 - For small tasks, use the request as the plan and proceed. Expand brainstorming or planning when uncertainty or complexity warrants it.
 - Keep Godot, media generation, hosted site builders, document tools, and other unrelated workflows dormant unless requested or directly relevant.
 
-<!-- BEGIN:nextjs-agent-rules -->
+## Laravel migration conventions
 
-## This is NOT the Next.js you know
-
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
-
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
-
-<!-- END:nextjs-agent-rules -->
+- React UI and unchanged styles live in `resources/`; website routes and action controllers live in `routes/` and `app/Http/`.
+- Use user JWTs through `App\Services\SupabaseClient`; do not replace RLS with a service-role bypass.
+- Scheduling schema stays in `supabase/migrations/`; `php artisan migrate` is not its installer.
+- Run `npm run lint`, `npm test`, `composer test`, `npm run build` and relevant browser checks. Preserve the welcome page, map, CSS and existing account/MFA flows.

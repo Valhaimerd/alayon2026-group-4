@@ -1,5 +1,11 @@
 # Development status
 
+## Laravel conversion (18 November 2026)
+
+Next.js has been replaced locally by Laravel 13, React and Inertia, preserving the interface, assets and Supabase security contracts. Start with `composer run dev` and open `http://localhost:8000`. See [migration notes](LARAVEL-MIGRATION.md) for current paths and setup.
+
+Lint/build, seven Node tests, 22 Laravel tests (116 assertions) and six desktop/mobile browser checks pass. Before/after map screenshots match at 1440x900 and 390x844. Live Supabase/MFA/SMS and production hosting were not revalidated; no database migration or deployment was performed. Sections below retain historical evidence, including older Next.js paths and test counts.
+
 ## Academic allocation implementation
 
 The fixed provisional BSIT catalog, explicit roles, confirmed account-backed instructors and linked lecture/lab meeting workflow are implemented. The migration and its two follow-up corrections are applied to the connected Supabase project. Legacy bookings and standalone instructor records remain readable without guessed mappings. New class writes require an approved active component and eligible instructor; registrars cannot create subjects, instructors or accounts.

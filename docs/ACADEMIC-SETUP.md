@@ -4,6 +4,8 @@ The academic migrations are applied to the connected competition project. Use `s
 
 ## Administrator setup
 
+Current runtime: Laravel/React/Inertia; see [migration notes](LARAVEL-MIGRATION.md). Supabase roles, schema and RPCs described here are unchanged. Laravel controllers replace the former Next server actions.
+
 1. Sign in with the initial administrator/registrar account and open **Academic setup** in `/explore`.
 2. Create the department's actual academic term: name, semester, first date and last date. No term dates are inferred from the current calendar.
 3. Create its actual class sections, specifying year level and an optional single track per section. A track selection does not activate unresolved elective mappings.

@@ -2,6 +2,10 @@
 
 Record consequential decisions here with their context and reasoning when made. Confirmed product requirements belong in [PRODUCT.md](PRODUCT.md).
 
+## Laravel with the existing React interface
+
+Authorized 17 November 2026; verification updated 18 November 2026. Replace Next.js with Laravel while retaining React, the map, styles and assets. Laravel/Inertia own routing, sessions and actions; Supabase Auth/PostgreSQL, user-JWT RLS and existing scheduling/MFA RPCs remain authoritative. Use Composer and npm and a PHP-capable host. `/` remains the welcome page, `/explore` the workspace, and `/staff` redirects to `/explore?signin=1`. Earlier framework/route decisions below are historical. See [migration notes](LARAVEL-MIGRATION.md).
+
 ## Database changes
 
 Keep schema changes and access policies in Supabase migration files under `supabase/migrations/`, with the Supabase working directory at the repository root. The intended GitHub production branch is `main`. Automatic deployment applies pending migrations to the connected production database when enabled; confirm its setting before relying on it. Review and test migrations before merging.

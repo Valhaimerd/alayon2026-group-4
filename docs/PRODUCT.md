@@ -1,6 +1,6 @@
 ﻿# Product
 
-CISC SchedFlow is a classroom scheduling PWA for a department. Staff create and publish schedules; anyone can view published schedules. The building map is the shared workspace for viewing and managing schedules. Next.js, Vercel, Supabase, and HaturikoSMS are the agreed platform direction. The original five-hour demo has expanded; the revised deadline is not yet specified.
+CISC SchedFlow is a classroom scheduling PWA for a department. Staff create and publish schedules; anyone can view published schedules. The building map is the shared workspace. After the authorized framework conversion, Laravel, React/Inertia, Supabase and HaturikoSMS are the current platform direction, with PHP-capable hosting to be configured. See [migration notes](LARAVEL-MIGRATION.md). The original five-hour demo has expanded; the revised deadline is not yet specified.
 
 ## Expanded release scope
 
