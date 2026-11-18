@@ -8,9 +8,9 @@ A classroom and room scheduling system with an interactive 2D building map and r
 
 **Team:** SchedFlow
 
-**Section:** To be provided
+**Section:** BSIT 4C
 
-**Adviser/Instructor:** Buntod, Rinante
+**Adviser/Instructor:** MR. BUNTOD, RINANTE
 
 | Team member | Project role |
 | --- | --- |
@@ -201,7 +201,7 @@ These working Markdown documents are not substitutes for the required D1–D4 PD
 Credits:
 
 - Team SchedFlow: Magdaraog, Emmanuel B. (Backend Developer) and Oinal, Baby Lyn A. (Frontend Developer).
-- Instructor: Buntod, Rinante.
+- Instructor: MR. BUNTOD, RINANTE.
 - Laravel, React, Inertia, Vite, Supabase, Lenis, GSAP and Playwright, alongside the other dependencies recorded in the lockfiles.
 - Manrope font by the Manrope Project Authors, distributed with its [SIL Open Font License](public/fonts/Manrope-OFL.txt).
 - HaturikoSMS for SMS integration.
