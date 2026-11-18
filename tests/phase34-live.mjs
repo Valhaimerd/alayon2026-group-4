@@ -2,6 +2,7 @@
 // Test bookings are restricted to generated IDs/titles and removed in finally; no SMS contacts are created.
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
+import { existsSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
 
 assert.equal(
@@ -9,9 +10,9 @@ assert.equal(
   "true",
   "Explicitly enable live tests",
 );
-process.loadEnvFile(".env.local");
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL,
-  key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+for (const file of [".env", ".env.local"]) if (existsSync(file)) process.loadEnvFile(file);
+const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL,
+  key = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 assert.ok(
   url && key && process.env.E2E_STAFF_EMAIL && process.env.E2E_STAFF_PASSWORD,
   "Provide Supabase and test account configuration",
