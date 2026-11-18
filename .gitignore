@@ -42,3 +42,23 @@ yarn-error.log*
 next-env.d.ts
 
 !.env.example
+
+# Laravel and Vite
+/vendor/
+/public/build/
+/public/hot
+/public/storage
+/storage/*.key
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*
+/bootstrap/cache/*.php
+/.phpunit.cache/
+/.phpunit.result.cache
+/test-results/
+/playwright-report/
+!/storage/framework/cache/data/.gitignore
+!/storage/framework/sessions/.gitignore
+!/storage/framework/views/.gitignore
+!/storage/logs/.gitignore

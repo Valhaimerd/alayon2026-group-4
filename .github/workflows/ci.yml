@@ -8,11 +8,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          extensions: mbstring, curl, dom, xml, fileinfo, pdo_sqlite
+          coverage: none
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
       - run: npm ci
+      - run: composer install --no-interaction --prefer-dist
+      - run: cp .env.example .env
+      - run: php artisan key:generate
       - run: npm run lint
       - run: npm test
+      - run: composer test
       - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
