@@ -279,7 +279,7 @@ export default function Workspace({
             </>
           )}
           <p className="demo-note">
-            Illustrative floor plans. Room names and capacities need verification.
+            Illustrative floor plans. Room capacities and boundaries need verification.
             Times are Philippine time.
           </p>
         </aside>
@@ -348,10 +348,21 @@ export default function Workspace({
               height="1024"
               pointerEvents="none"
             />
+            {floor === 0 && (
+              <g className="map-landmark" data-landmark="conference-room" role="img" aria-label="Conference Room, No bookings" pointerEvents="none">
+                <rect fill={`url(#${svgId}-available)`} x={57} y={323} width={165} height={393} rx={3} />
+                <text x={139.5} y={498} textAnchor="middle">
+                  <tspan x={139.5}>Conference</tspan>
+                  <tspan x={139.5} dy={28}>Room</tspan>
+                </text>
+                <text className="map-status" x={139.5} y={556} textAnchor="middle">No bookings</text>
+              </g>
+            )}
             {rooms
               .filter((r) => r.floor === floor)
               .map((r) => {
                 const status = statusFor(r.id);
+                const labelLines = r.mapLabel ?? [r.name];
                 return (
                   <g
                     key={r.id}
@@ -371,13 +382,13 @@ export default function Workspace({
                     }}
                   >
                     <rect style={{ fill: status === "Unknown" && selected !== r.id ? "#e4e9e6" : `url(#${svgId}-${selected === r.id ? "selected" : statusClass(status)})` }} x={r.x + 5} y={r.y + 5} width={r.width - 10} height={r.height - 10} rx="3" />
-                    <text x={r.x + r.width / 2} y={r.y + r.height / 2 - 8} textAnchor="middle">
-                      {r.name}
+                    <text x={r.x + r.width / 2} y={r.y + r.height / 2 - 8 - (labelLines.length - 1) * 14} textAnchor="middle">
+                      {labelLines.map((line, index) => <tspan key={line} x={r.x + r.width / 2} dy={index === 0 ? 0 : 28}>{line}</tspan>)}
                     </text>
                     <text
                       className="map-status"
                       x={r.x + r.width / 2}
-                      y={r.y + r.height / 2 + 22}
+                      y={r.y + r.height / 2 + 22 + (labelLines.length - 1) * 14}
                       textAnchor="middle"
                     >
                       {status}

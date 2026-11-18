@@ -1,25 +1,44 @@
 import { test, expect } from "@playwright/test";
 
-test("map selection, floor switching, search and daily navigation remain usable", async ({ page, isMobile }) => {
+test("map selection, floor switching, search and daily navigation remain usable", async ({ page, isMobile }, testInfo) => {
   const errors: string[] = [];
   page.on("pageerror", error => errors.push(error.message));
   await page.goto("/explore?date=2026-11-12");
   if (isMobile) await page.getByRole("button", { name: "Filters & rooms" }).click();
   await expect(page.getByRole("heading", { name: "Find your room." })).toBeVisible();
-  await page.getByRole("button", { name: /Room G01/ }).first().click();
-  await expect(page.getByRole("heading", { name: "Room G01", exact: true })).toBeVisible();
+  await expect(page.locator('[data-room="g1"]')).toHaveAccessibleName(/^CISC Room 3,/);
+  await expect(page.locator('[data-room="g2"]')).toHaveAccessibleName(/^CISC Room 2,/);
+  await expect(page.locator('[data-room="g3"]')).toHaveAccessibleName(/^CISC Room 1,/);
+  await expect(page.locator('[data-room="g4"]')).toHaveAccessibleName(/^CISC Laboratory 11,/);
+  await expect(page.locator('[data-landmark="conference-room"]')).toBeVisible();
+  await page.getByRole("button", { name: /CISC Room 3/ }).first().click();
+  await expect(page.getByRole("heading", { name: "CISC Room 3", exact: true })).toBeVisible();
   if (isMobile) await page.getByRole("button", { name: "View schedule", exact: true }).click();
   await expect(page.getByText("Introduction to computing").first()).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("first-floor.png") });
   if (isMobile) await page.getByRole("button", { name: "Filters & rooms" }).click();
   await page.getByRole("button", { name: "Second floor", exact: true }).click();
   await expect(page.locator(".map-room")).toHaveCount(7);
+  for (const [id, name] of Object.entries({ s1: "CISC Laboratory 26", s2: "CISC Laboratory 25", s3: "CISC Laboratory 24", s4: "CISC Laboratory 23", s5: "CISC Laboratory 22", s6: "CISC Laboratory 21", s7: "CISC Training Room" })) {
+    await expect(page.locator(`[data-room="${id}"]`)).toHaveAccessibleName(new RegExp(`^${name},`));
+  }
+  await page.evaluate(() => document.fonts.ready);
+  const overflowingLabels = await page.locator(".map-room").evaluateAll(groups => groups.filter(group => {
+    const bounds = group.querySelector("rect")!.getBBox();
+    const label = group.querySelector("text")!.getBBox();
+    return label.x < bounds.x || label.x + label.width > bounds.x + bounds.width;
+  }).map(group => group.getAttribute("data-room")));
+  expect(overflowingLabels).toEqual([]);
+  if (isMobile) await page.getByRole("button", { name: "Close filters", exact: true }).click();
+  await page.screenshot({ path: testInfo.outputPath("second-floor.png") });
+  if (isMobile) await page.getByRole("button", { name: "Filters & rooms" }).click();
   const search = page.getByRole("searchbox", { name: "Search rooms or subjects" });
   await search.fill("no matching room");
   await expect(page.getByText(/No rooms match/)).toBeVisible();
   await search.fill("");
   await page.getByRole("button", { name: "Ground floor", exact: true }).click();
   await page.getByLabel("Date", { exact: true }).fill("2026-11-13");
-  await page.getByRole("button", { name: /Room G01/ }).first().click();
+  await page.getByRole("button", { name: /CISC Room 3/ }).first().click();
   if (isMobile) await page.getByRole("button", { name: "View schedule", exact: true }).click();
   await expect(page.getByText("No classes scheduled")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

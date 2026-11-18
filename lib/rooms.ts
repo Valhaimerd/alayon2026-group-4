@@ -1,6 +1,7 @@
 export type Room = {
   id: string;
   name: string;
+  mapLabel?: string[];
   floor: number;
   capacity: number;
   kind: string;
@@ -12,7 +13,7 @@ export type Room = {
 export const rooms: Room[] = [
   {
     id: "g1",
-    name: "Room G01",
+    name: "CISC Room 3",
     floor: 0,
     capacity: 40,
     kind: "Classroom",
@@ -23,7 +24,7 @@ export const rooms: Room[] = [
   },
   {
     id: "g2",
-    name: "Room G02",
+    name: "CISC Room 2",
     floor: 0,
     capacity: 40,
     kind: "Classroom",
@@ -34,7 +35,7 @@ export const rooms: Room[] = [
   },
   {
     id: "g3",
-    name: "Room G03",
+    name: "CISC Room 1",
     floor: 0,
     capacity: 45,
     kind: "Classroom",
@@ -45,10 +46,10 @@ export const rooms: Room[] = [
   },
   {
     id: "g4",
-    name: "Room G04",
+    name: "CISC Laboratory 11",
     floor: 0,
     capacity: 35,
-    kind: "Classroom",
+    kind: "Laboratory",
     x: 316,
     y: 716,
     width: 300,
@@ -56,10 +57,10 @@ export const rooms: Room[] = [
   },
   ...[0, 1, 2].map((i) => ({
     id: `s${i + 1}`,
-    name: `Room S0${i + 1}`,
+    name: `CISC Laboratory ${26 - i}`,
     floor: 1,
     capacity: 40,
-    kind: "Classroom",
+    kind: "Laboratory",
     x: [314, 620, 910][i],
     y: 68,
     width: [303, 287, 297][i],
@@ -67,7 +68,7 @@ export const rooms: Room[] = [
   })),
   ...[0, 1, 2].map((i) => ({
     id: `s${i + 4}`,
-    name: `Computer lab ${i + 1}`,
+    name: `CISC Laboratory ${23 - i}`,
     floor: 1,
     capacity: 30,
     kind: "Computer lab",
@@ -78,10 +79,11 @@ export const rooms: Room[] = [
   })),
   {
     id: "s7",
-    name: "Room S07",
+    name: "CISC Training Room",
+    mapLabel: ["CISC", "Training", "Room"],
     floor: 1,
     capacity: 25,
-    kind: "Classroom",
+    kind: "Training room",
     x: 52,
     y: 318,
     width: 175,

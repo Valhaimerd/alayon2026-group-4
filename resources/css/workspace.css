@@ -403,7 +403,7 @@ input:focus,select:focus {
 .map-room {
   cursor:pointer;
 }
-.map-room rect {
+.map-room rect,.map-landmark rect {
   fill-opacity:.96;
   stroke:#629475;
   stroke-width:2;
@@ -426,13 +426,13 @@ input:focus,select:focus {
 .map-room:focus {
   outline:none;
 }
-.map-room text {
+.map-room text,.map-landmark text {
   fill:#103f2e;
   font-size:23px;
   font-weight:800;
   pointer-events:none;
 }
-.map-room .map-status {
+.map-room .map-status,.map-landmark .map-status {
   font-size:16px;
   font-weight:600;
 }
