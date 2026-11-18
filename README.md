@@ -6,15 +6,16 @@ A classroom and room scheduling system with an interactive 2D building map and r
 
 **API docs:** To be provided; `/api/docs` and a versioned external API are not implemented. The current internal action contract is documented in [Laravel migration notes](docs/LARAVEL-MIGRATION.md#internal-action-contract).
 
-**Team:** Alayon 2026 — Group 4
+**Team:** SchedFlow
 
 **Section:** To be provided
 
-**Adviser/Instructor:** To be provided
+**Adviser/Instructor:** Buntod, Rinante
 
 | Team member | Project role |
 | --- | --- |
-| To be provided | To be provided |
+| Magdaraog, Emmanuel B. | Backend Developer |
+| Oinal, Baby Lyn A. | Frontend Developer |
 
 This README follows the required project-submission structure. Replace outstanding details with confirmed information before submission. The implementation partially satisfies the original PDF proposal; see the [audit](docs/PDF-IMPLEMENTATION-AUDIT.md) and [implementation checklist](docs/PDF-IMPLEMENTATION-CHECKLIST.md).
 
@@ -199,7 +200,8 @@ These working Markdown documents are not substitutes for the required D1–D4 PD
 
 Credits:
 
-- Alayon 2026 Group 4; individual names and project roles are pending.
+- Team SchedFlow: Magdaraog, Emmanuel B. (Backend Developer) and Oinal, Baby Lyn A. (Frontend Developer).
+- Instructor: Buntod, Rinante.
 - Laravel, React, Inertia, Vite, Supabase, Lenis, GSAP and Playwright, alongside the other dependencies recorded in the lockfiles.
 - Manrope font by the Manrope Project Authors, distributed with its [SIL Open Font License](public/fonts/Manrope-OFL.txt).
 - HaturikoSMS for SMS integration.
