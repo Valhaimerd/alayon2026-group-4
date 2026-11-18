@@ -1,164 +1,206 @@
 # CISC SchedFlow
 
-Alayon 2026 · Group 4
+A classroom and room scheduling system with an interactive 2D building map and role-based access for registrars and instructors.
 
-CISC SchedFlow is a classroom scheduling application centered on an interactive building map. Public visitors view published schedules, registrars manage class allocations and department activities, administrators configure academic setup and instructor account links, and instructors view their own allocations.
+**Live URL:** To be provided; no Laravel production deployment has been verified.
 
-The application uses **Laravel 13, React 19, Inertia 3 and Supabase**. Laravel replaces the former Next.js application while preserving the existing interface and assets. It **partially implements the original PDF proposal**. See the [implementation audit](docs/PDF-IMPLEMENTATION-AUDIT.md) for the original comparison, the [implementation checklist](docs/PDF-IMPLEMENTATION-CHECKLIST.md) for remaining features, and the [Laravel migration notes](docs/LARAVEL-MIGRATION.md) for the new architecture and verification.
+**API docs:** To be provided; `/api/docs` and a versioned external API are not implemented. The current internal action contract is documented in [Laravel migration notes](docs/LARAVEL-MIGRATION.md#internal-action-contract).
 
-## Current features and limits
+**Team:** Alayon 2026 — Group 4
 
-| Area | Available in source | Remaining work |
-| --- | --- | --- |
-| Building explorer | Two floors, selectable room overlays, search, pan, zoom, Fit building and responsive panels | Authoritative room-data verification and inventory management |
-| Schedule viewing | Daily published schedules, academic details and authorized private allocations | Weekly calendar, complete filters and interval availability |
-| Manual scheduling | Create/edit classes and activities, drafts, publication and bounded weekly creation | Series-wide edits, examination rules and separate approval/version history |
-| Validation | Published room/instructor overlap protection, normal capacity and academic term checks | Section conflicts, equipment, suitability, operating hours and maintenance rules |
-| Academic setup | Provisional BSIT catalog, linked lecture/lab components, terms, sections and account-backed instructors | Official curriculum confirmation and unresolved elective/track mappings |
-| Security | Supabase authentication, administrator/registrar/instructor roles, profile/password settings and optional TOTP/SMS MFA | Expanded role workflows and account administration |
-| SMS and PWA | Schedule-change outbox/retry integration, manifest, icons and offline fallback | Target-environment integration, delivery and physical-device install/update verification |
+**Section:** To be provided
 
-PDF extraction, OCR, AI interpretation, automated room assignment, RAG, the natural-language assistant, versioned external integration APIs, configurable institutional branding and application audit logs remain unimplemented. CSV exchange and designed PDF export are also planned.
+**Adviser/Instructor:** To be provided
 
-Weekly creation expands into at most 150 independent dated bookings; editing changes one occurrence. It does not provide a weekly calendar display. Room labels, capacities and geometry remain illustrative until verified. Source availability does not establish production readiness; see [development status](docs/DEVELOPMENT-STATUS.md) for historical evidence and limitations.
+| Team member | Project role |
+| --- | --- |
+| To be provided | To be provided |
 
-## Technology
+This README follows the required project-submission structure. Replace outstanding details with confirmed information before submission. The implementation partially satisfies the original PDF proposal; see the [audit](docs/PDF-IMPLEMENTATION-AUDIT.md) and [implementation checklist](docs/PDF-IMPLEMENTATION-CHECKLIST.md).
 
-- Laravel 13, PHP, React 19.3.0, Inertia 3, TypeScript and Vite 8.
-- Supabase PostgreSQL and Auth, accessed by Laravel with the user's JWT so existing row-level security remains active.
-- SVG floor-map overlays, CSS and Lenis scrolling.
-- HaturikoSMS for account verification and schedule-change notices.
-- Node.js 24 and npm, using the committed `package-lock.json`.
+## Features (by role)
 
-The PDF proposes a different stack. The [architecture](docs/ARCHITECTURE.md) describes the current direction; the audit records the differences.
+| Role | Available features |
+| --- | --- |
+| **Public visitor** | View published daily schedules and room details; search rooms/subjects; switch floors; pan, zoom and select rooms on the map. |
+| **Registrar** | Sign in; choose approved subjects, sections and existing instructors; create/edit classes and department activities; save drafts; publish/unpublish schedules; review/retry instructor notices when configured. |
+| **Instructor** | Sign in; view their own allocations, including permitted drafts, and published schedules; manage personal display name, password and optional MFA. |
+| **Administrator — setup support** | Configure terms and sections, link confirmed instructor accounts, and activate/deactivate instructor profiles. Scheduling also requires an explicit registrar role. |
 
-## Local setup
+Registrars and instructors share the email/password sign-in form at `/explore?signin=1`. Account roles are verified on the server; users cannot assign themselves permissions. The welcome-page sign-in link opens this form over the map. If authentication is unconfigured, the form stays visible, explains the limitation and disables submission.
 
-Use **PHP 8.4+, Composer 2, Node.js 24 and npm**. PHP needs the standard Laravel extensions, including cURL, OpenSSL, mbstring, XML and fileinfo. No local scheduling database is needed: sessions/cache use files and scheduling data stays in Supabase.
+Current scheduling checks reject published room/instructor overlaps, excess normal room capacity and invalid academic allocations. Weekly creation expands into at most 150 dated bookings; edits affect one occurrence. Conference Room is selectable and uses a **provisional maximum of 25 people**, pending capacity confirmation.
 
-From the project folder, install the dependencies:
+The PWA provides a manifest, icons and a static offline fallback. Private schedule data and offline writes are not cached. Optional SMS sending requires server configuration and recipient consent; provider acceptance does not confirm delivery.
+
+**Still planned:** full weekly calendars, dedicated room-use request and examination workflows/templates, exam-specific capacities, CSV/PDF exchange, OCR, automated assignment, approval/version history, RAG/assistant inquiries, external integration APIs and application audit logging. Registrar interviews must confirm the remaining parameters and official templates. Room boundaries, equipment and capacities still need authoritative verification.
+
+## Architecture (diagram image)
+
+![CISC SchedFlow architecture: React and Inertia communicate with Laravel; Laravel accesses Supabase using user JWTs and optionally sends messages through HaturikoSMS.](docs/images/architecture.png)
+
+[Editable diagram source](docs/images/architecture.svg) · [Architecture details](docs/ARCHITECTURE.md)
+
+- The browser runs the React/Inertia interface and submits same-origin, CSRF-protected requests to Laravel.
+- Laravel handles routes, validation, role/MFA verification and encrypted server-side sessions. Supabase access/refresh tokens stay on the server.
+- Laravel accesses Supabase Auth, PostgreSQL/PostgREST and existing RPCs with the signed-in user's JWT. Row-level security and database conflict constraints remain authoritative.
+- HaturikoSMS handles configured account-verification messages and schedule-change notices.
+- Vite builds frontend assets. Sessions/cache use Laravel file storage locally; a suitable shared driver is needed for multiple application instances.
+
+Scheduling schema history remains in `supabase/migrations/`. The Laravel conversion preserves the Supabase database and existing accounts; `php artisan migrate` is not the installer for this scheduling schema.
+
+## Tech stack
+
+| Layer | Technology |
+| --- | --- |
+| Backend | Laravel 13, PHP 8.4+, Composer 2 |
+| Frontend | React 19.3.0, Inertia 3, TypeScript, CSS |
+| Assets and development | Vite 8, Node.js 24, npm |
+| Database and authentication | Supabase PostgreSQL, Auth, RLS and RPCs |
+| Building map | Interactive SVG overlays and supplied floor-plan images |
+| Motion | Lenis; pinned GSAP/Lenis CDN scripts on the welcome page |
+| Notifications | HaturikoSMS HTTP API |
+| PWA | Web app manifest and native service worker |
+| Tests and CI | PHPUnit/Laravel HTTP tests, Node tests, ESLint, Playwright, GitHub Actions |
+
+Exact dependencies are recorded in [composer.json](composer.json), [package.json](package.json) and their committed lockfiles.
+
+## Run locally (clone, copy .env.example to .env, docker compose up)
+
+**Docker Compose status:** this repository does not currently contain a Dockerfile or Compose configuration. `docker compose up` is not a working startup command yet. The supported setup below uses local PHP and Node.js; containerization remains an outstanding submission requirement.
+
+Install PHP 8.4+, Composer 2, Node.js 24 and npm. PHP needs the standard Laravel extensions, including cURL, OpenSSL, mbstring, XML and fileinfo.
+
+For a fresh checkout in PowerShell:
 
 ```powershell
+git clone https://github.com/Valhaimerd/alayon2026-group-4.git
+cd alayon2026-group-4
+Copy-Item .env.example .env
 composer install
 npm ci
-```
-
-For a new local configuration, create `.env` and generate its Laravel application key:
-
-```powershell
-Copy-Item .env.example .env
 php artisan key:generate
-```
-
-Preserve an existing `.env` and its `APP_KEY`. Environment files are ignored by Git. Start Laravel and Vite together:
-
-```powershell
 composer run dev
 ```
 
-Open **[localhost:8000](http://localhost:8000)** for the welcome page or **[localhost:8000/explore](http://localhost:8000/explore)** for the building workspace. Keep the terminal running; Ctrl+C stops both processes. The Vite address is an asset server, not the website.
+Open **[http://localhost:8000](http://localhost:8000)** for the welcome page or **[http://localhost:8000/explore](http://localhost:8000/explore)** for the map. Keep the terminal running; Ctrl+C stops the development processes. Vite's port 5173 is the asset server.
 
-Alternatively, run `php artisan serve` in one terminal and `npm run dev` in another. To run without Vite's development server, use `npm run build` followed by `php artisan serve`.
+For an existing checkout, preserve `.env` and `APP_KEY`; do not repeat the copy/key-generation steps. If port 8000 is occupied, start `php artisan serve --port=8001` and `npm run dev` in separate terminals, then open port 8001.
 
-Without Supabase configuration, the explorer displays labeled demo schedules without persisted scheduling or account access. Sample bookings are dated 12 November 2026: open `/explore?date=2026-11-12` to see them. Fill in the Supabase values in `.env` and restart Laravel for real data and account access. Laravel does not automatically load the former `.env.local`; transfer existing configuration locally without committing secrets.
+Without Supabase configuration, the map uses labeled demo data. Sample bookings are dated **12 November 2026**: open `/explore?date=2026-11-12` to see them. For real accounts/data, configure `.env` and restart Laravel. The former `.env.local` is not automatically loaded.
 
-### Environment variables
-
-| Variable | Purpose |
+| Environment variable | Purpose |
 | --- | --- |
-| `APP_KEY` | Laravel encryption key, generated once with `php artisan key:generate` |
-| `APP_URL` | Local or deployed website URL; local default is `http://localhost:8000` |
-| `SUPABASE_URL` | Project URL; required for persisted data and account access |
-| `SUPABASE_PUBLISHABLE_KEY` | Publishable project key; Laravel forwards each user's JWT and preserves RLS |
-| `HATURIKOSMS_API_KEY` | Server-only provider key for SMS features |
-| `ACCOUNT_SMS_SERVER_SECRET` | Server-only account SMS credential; requires coordinated database setup |
-| `HATURIKOSMS_SEND_ENABLED` | Enables schedule-change sending only when `true`; example defaults to `false` |
-| `SCHEDULE_PUBLIC_URL` | Public HTTPS schedule-page URL included in schedule-change notices |
+| `APP_KEY` | Laravel encryption key generated once during initial setup |
+| `APP_URL` | Application URL; local default is `http://localhost:8000` |
+| `SUPABASE_URL` | Supabase project URL |
+| `SUPABASE_PUBLISHABLE_KEY` | Project publishable key; user JWTs retain RLS |
+| `HATURIKOSMS_API_KEY` | Server-only SMS provider key |
+| `ACCOUNT_SMS_SERVER_SECRET` | Server-only account SMS credential, requiring coordinated database setup |
+| `HATURIKOSMS_SEND_ENABLED` | Enables schedule-change sending only when `true` |
+| `SCHEDULE_PUBLIC_URL` | Public HTTPS schedule-page link used in notices |
 
-`HATURIKOSMS_SEND_ENABLED=false` does **not** disable account login/enrollment SMS. Account SMS also requires provisioning the server credential's SHA-256 digest through trusted database access. Follow [account settings and MFA](docs/ACCOUNT-SETTINGS.md) for setup. Keep provider keys and server credentials out of browser code, logs and committed files.
+`HATURIKOSMS_SEND_ENABLED=false` does not disable account-verification SMS. See [account settings and MFA](docs/ACCOUNT-SETTINGS.md) for secret provisioning and verification behavior. Commit only the blank/example configuration, never real credentials.
 
-### Database and initial access
+Existing databases need their reviewed migration history checked before applying changes. New targets need the Supabase SQL migrations through the normal migration workflow. Instructor accounts must be confirmed in Supabase Auth, linked to profiles and explicitly assigned roles. See [academic setup](docs/ACADEMIC-SETUP.md).
 
-Scheduling schema history remains in `supabase/migrations/`. The Laravel conversion does not replace Supabase Auth, migrate existing accounts, or reapply scheduling migrations. Confirm the intended database target and migration history before changes. **Do not run `php artisan migrate` to install the scheduling schema**; a fresh Supabase environment needs the reviewed SQL migrations in order.
+## Test (commands for backend, frontend, e2e)
 
-Initial access uses guarded scripts under `supabase/admin/`. There is no public self-registration or role self-promotion. Accounts need explicit roles; administrator privileges alone do not grant scheduling permission.
+Run after installing Composer/npm dependencies and configuring a local application key.
 
-1. Sign in as an administrator and open **Academic setup** in `/explore`.
-2. Create the actual academic term and class sections.
-3. Create/invite and confirm instructor accounts through Supabase Auth administration, then link active profiles in Academic setup.
-4. Sign in as a registrar, select a room and use **New booking** to choose approved subjects/components and existing instructors.
+**Backend:**
 
-See [academic setup and allocation contracts](docs/ACADEMIC-SETUP.md) for provisioning, permissions and legacy records. Registrars cannot create subjects, instructor accounts or access roles. The explorer's profile button provides display-name/password settings and optional MFA.
+```powershell
+composer test
+```
 
-## Commands and verification
+**Frontend lint, shared logic tests and production build:**
 
-| Command | Purpose |
-| --- | --- |
-| `composer run dev` | Start Laravel and Vite together |
-| `php artisan serve` | Start Laravel only, normally at port 8000 |
-| `npm run dev` | Start Vite's frontend asset server |
-| `npm run lint` | Run ESLint |
-| `npm test` | Run shared scheduling and curriculum Node tests |
-| `composer test` | Run Laravel unit/HTTP tests with mocked Supabase and SMS calls |
-| `npm run build` | Check TypeScript and produce Vite production assets |
-| `npm start` | Start Laravel; requires running Vite or built assets |
-| `npm run test:browser` | Run desktop/mobile Playwright checks against a separate demo server |
+```powershell
+npm run lint
+npm test
+npm run build
+```
 
-Run lint, both test suites and build before submitting changes. For browser tests, install Chromium once with `npx playwright install chromium`, then run `npm run test:browser`. Build assets first and stop any Vite development server so browser tests can use the production bundle.
+**End-to-end browser checks:**
 
-The PDF audit's missing-dependency results are historical. Current migration checks and limits are recorded in [Laravel migration notes](docs/LARAVEL-MIGRATION.md).
+```powershell
+npx playwright install chromium
+npm run test:browser
+```
 
-SQL and opt-in live tests are separate from `npm test`. Run them only on a confirmed authorized test target using documented rollback/cleanup procedures. Live checks create temporary records; unit tests mock SMS and send no messages. See [development status](docs/DEVELOPMENT-STATUS.md) for live-test configuration.
+Build assets first and stop Vite before browser checks so they use the production bundle. Playwright starts and stops a separate demo server on port 8100 and checks desktop/mobile behavior. On Linux CI, use `npx playwright install --with-deps chromium` to install browser system dependencies.
 
-## Routes
+Latest sign-in verification: **25 Laravel tests, seven Node tests and ten browser checks pass**, with lint and production build passing. Laravel tests mock Supabase/SMS; browser tests use demo mode and send no SMS. These results do not verify live accounts, SMS delivery or production hosting.
 
-| Route | Behavior |
-| --- | --- |
-| `/` | Welcome page served from `public/welcome.html` |
-| `/explore` | Shared public/account building workspace |
-| `/explore?signin=1` | Workspace with the account sign-in dialog |
-| `/welcome` | Redirects to `/` |
-| `/staff` | Redirects to `/explore?signin=1` |
+SQL policy tests and [the opt-in live-access script](tests/phase34-live.mjs) are separate. Run them only against a confirmed authorized test environment using documented rollback/cleanup procedures; see [development status](docs/DEVELOPMENT-STATUS.md).
 
-## Welcome page and scroll motion
+## Deployment (CI/CD summary, hosting option)
 
-Open / in the running app (/welcome redirects there), or open [public/welcome.html](public/welcome.html) directly in a browser for the registrar welcome reference. GSAP 3.13.0 and Lenis 1.3.27 load from pinned CDN URLs. If a CDN is unavailable, the page retains native scrolling and readable content. Explore links to the map at /explore, and the sign-in link opens the general account dialog at /explore?signin=1. The legacy /staff URL redirects to the same dialog.
+[GitHub Actions](.github/workflows/ci.yml) runs on pull requests and pushes to `main`. It installs PHP/Node dependencies, creates a test environment key, runs lint and Node/Laravel tests, builds frontend assets, and runs Chromium browser checks.
 
-The welcome page uses one GSAP ticker for both Lenis and ScrollTrigger. Its rooms/classes/schedules typography stage, masked headline, moving room/class/time labels, preview cursor following, and traveling Explore button respect reduced motion. Touch scrolling stays native; smoothing is for wheel input. The Explore button moves between hero, navbar, and final section.
+**CD status:** the workflow verifies changes; it does not currently deploy the Laravel application. A production hosting target and deployment process must still be confirmed.
 
-The React app mounts one npm-installed Lenis instance in `resources/js/smooth-scroll.tsx`. Its effect destroys the instance on unmount. Map gestures, panels and dialogs retain native input. Add `data-lenis-prevent` to future scrollable overlays that should handle their own gestures.
+**Hosting option:** a PHP 8.4+ server or managed Laravel/PHP host, with its document root set to `public/` and Supabase retained as the external database/Auth service. The former Next.js/Vercel configuration does not run this PHP application by itself.
 
-The PWA opens at `/explore`. Its service worker supplies a static offline fallback; private schedules and offline writes are not cached or queued.
+Typical release build commands:
 
-## Repository guide
+```sh
+composer install --no-dev --optimize-autoloader --no-interaction
+npm ci
+npm run build
+```
 
-| Path | Contents |
-| --- | --- |
-| `app/` | Laravel controllers, middleware, Supabase/session/SMS services and scheduling helpers |
-| `resources/` | Existing React interface, CSS, Inertia entry point and Blade root template |
-| `routes/` | Website routes and CSRF-protected action endpoints |
-| `config/` | Laravel and SchedFlow service configuration |
-| `lib/` | Shared TypeScript room/catalog models and scheduling validation |
-| `public/` | Welcome page, floor references, fonts, icons and service worker |
-| `supabase/` | Migrations, catalog seed, provisioning scripts and configuration |
-| `tests/` | Laravel/Node/browser tests, SQL checks and opt-in live verification |
-| `docs/` | Requirements, audit, checklist, plans, contracts and evidence |
+Configure production environment values separately, use HTTPS, `APP_DEBUG=false`, `SESSION_SECURE_COOKIE=true`, and a stable `APP_KEY`. Make `storage/` and `bootstrap/cache/` writable and persist session storage appropriately. Keep preview/test writes isolated from production and apply reviewed Supabase migrations separately.
 
-## Deployment
+The current dependency audit records a development-toolchain advisory; see [migration notes](docs/LARAVEL-MIGRATION.md#verification-and-limits) for the verification limits and dependency status.
 
-Deploy to a PHP 8.4+ host with its document root set to `public/`. Install Composer production dependencies, build assets with `npm ci` and `npm run build`, configure production `.env` values, and make `storage/` and `bootstrap/cache/` writable. Use HTTPS, `APP_DEBUG=false`, a stable `APP_KEY` and `SESSION_SECURE_COOKIE=true` in production.
+## Demo accounts (one per role, sample data only)
 
-The former Next.js/Vercel deployment configuration is no longer sufficient to host this PHP application. Hosting migration remains separate from local conversion; no production deployment or database changes were made. Keep preview writes isolated from production, and confirm Supabase migration history independently. See [Laravel migration notes](docs/LARAVEL-MIGRATION.md).
+**Public demo:** anonymous map access works without accounts when Supabase is unconfigured. This mode does not provide authenticated registrar/instructor access.
 
-## Project documentation
+No dedicated sample-only registrar/instructor credentials have been supplied or verified for this submission. Replace the pending entries only after provisioning accounts in an isolated demonstration environment containing sample data.
 
-- [PDF implementation audit](docs/PDF-IMPLEMENTATION-AUDIT.md): original requirements, gaps and source evidence.
-- [PDF implementation checklist](docs/PDF-IMPLEMENTATION-CHECKLIST.md): remaining work in dependency order and acceptance checks.
-- [Development status](docs/DEVELOPMENT-STATUS.md): historical verification, setup and limitations.
-- [Product](docs/PRODUCT.md), [proposal](docs/CLASS-SCHED-PROPOSAL.md), [delivery plan](docs/PLAN.md) and [task backlog](docs/TASKS.md): later scope and milestones.
-- [Architecture](docs/ARCHITECTURE.md) and [decisions](docs/DECISIONS.md): technical direction and recorded choices.
-- [Academic setup](docs/ACADEMIC-SETUP.md), [schedule data](docs/SCHEDULE-DATA.md) and [subject catalog](docs/SUBJECT-CATALOG.md): allocation rules and contracts.
-- [Account settings and MFA](docs/ACCOUNT-SETTINGS.md): account security and SMS configuration.
-- [Import/export plan](docs/IMPORT-EXPORT.md): planned CSV/PDF exchange workflows.
+| Role | Demo email | Demo password | Status |
+| --- | --- | --- | --- |
+| Registrar | To be provided | To be provided | Dedicated sample-only account required |
+| Instructor | To be provided | To be provided | Dedicated sample-only account required |
 
-Some older status paragraphs, task checkboxes and route decisions need reconciliation, as recorded in the audit. Assess completion using actual source and dated verification evidence.
+Both roles use **Sign in to your account** on the welcome page or `/explore?signin=1`. A provisioned registrar receives scheduling/publication tools; an instructor receives their own assignments and published schedules. Administrator provisioning remains a separate setup operation.
+
+Never substitute real staff/instructor credentials for these demo entries. Database provisioning instructions are in [academic setup](docs/ACADEMIC-SETUP.md).
+
+## Documentation (links to D1–D4 PDFs)
+
+The official **D1–D4 PDFs have not been supplied or located in this repository**. Their titles and links must be filled in using the approved deliverables; the table does not assume what each designation means.
+
+| Deliverable | Official title | PDF link/status |
+| --- | --- | --- |
+| D1 | To be provided | Pending approved PDF |
+| D2 | To be provided | Pending approved PDF |
+| D3 | To be provided | Pending approved PDF |
+| D4 | To be provided | Pending approved PDF |
+
+Add the approved PDFs to the repository or provide stable access links, then replace the pending entries with actual links.
+
+Available working documentation:
+
+- [PDF implementation audit](docs/PDF-IMPLEMENTATION-AUDIT.md) and [implementation checklist](docs/PDF-IMPLEMENTATION-CHECKLIST.md).
+- [Product](docs/PRODUCT.md), [proposal](docs/CLASS-SCHED-PROPOSAL.md), [delivery plan](docs/PLAN.md) and [task backlog](docs/TASKS.md).
+- [Architecture](docs/ARCHITECTURE.md), [Laravel migration](docs/LARAVEL-MIGRATION.md), [decisions](docs/DECISIONS.md) and [development status](docs/DEVELOPMENT-STATUS.md).
+- [Academic setup](docs/ACADEMIC-SETUP.md), [schedule data](docs/SCHEDULE-DATA.md), [subject catalog](docs/SUBJECT-CATALOG.md) and [account settings/MFA](docs/ACCOUNT-SETTINGS.md).
+- [Planned import/export workflows](docs/IMPORT-EXPORT.md) and [floor-plan naming/reference notes](public/floor-plans/README.md).
+
+These working Markdown documents are not substitutes for the required D1–D4 PDFs.
+
+## License and credits
+
+[composer.json](composer.json) declares **MIT**. A standalone project `LICENSE` file and copyright attribution have not yet been supplied; the team must confirm these before submission.
+
+Credits:
+
+- Alayon 2026 Group 4; individual names and project roles are pending.
+- Laravel, React, Inertia, Vite, Supabase, Lenis, GSAP and Playwright, alongside the other dependencies recorded in the lockfiles.
+- Manrope font by the Manrope Project Authors, distributed with its [SIL Open Font License](public/fonts/Manrope-OFL.txt).
+- HaturikoSMS for SMS integration.
+- Building/floor-plan source attribution and permission: to be confirmed. Current images are illustrative references rather than measured drawings.
