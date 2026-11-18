@@ -4,6 +4,7 @@ export type Room = {
   mapLabel?: string[];
   floor: number;
   capacity: number;
+  capacityProvisional?: boolean;
   kind: string;
   x: number;
   y: number;
@@ -54,6 +55,19 @@ export const rooms: Room[] = [
     y: 716,
     width: 300,
     height: 250,
+  },
+  {
+    id: "g5",
+    name: "Conference Room",
+    mapLabel: ["Conference", "Room"],
+    floor: 0,
+    capacity: 25,
+    capacityProvisional: true,
+    kind: "Conference room",
+    x: 52,
+    y: 318,
+    width: 175,
+    height: 403,
   },
   ...[0, 1, 2].map((i) => ({
     id: `s${i + 1}`,

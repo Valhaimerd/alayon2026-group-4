@@ -265,7 +265,7 @@ export default function Workspace({
                     <span>
                       <strong>{r.name}</strong>
                       <small>
-                        {r.kind} · {r.capacity} seats
+                        {r.kind} · {r.capacityProvisional ? "up to " : ""}{r.capacity} seats
                       </small>
                     </span>
                     <span
@@ -348,16 +348,6 @@ export default function Workspace({
               height="1024"
               pointerEvents="none"
             />
-            {floor === 0 && (
-              <g className="map-landmark" data-landmark="conference-room" role="img" aria-label="Conference Room, No bookings" pointerEvents="none">
-                <rect fill={`url(#${svgId}-available)`} x={57} y={323} width={165} height={393} rx={3} />
-                <text x={139.5} y={498} textAnchor="middle">
-                  <tspan x={139.5}>Conference</tspan>
-                  <tspan x={139.5} dy={28}>Room</tspan>
-                </text>
-                <text className="map-status" x={139.5} y={556} textAnchor="middle">No bookings</text>
-              </g>
-            )}
             {rooms
               .filter((r) => r.floor === floor)
               .map((r) => {
@@ -371,7 +361,7 @@ export default function Workspace({
                     className={`map-room ${selected === r.id ? "selected" : ""} ${statusClass(status)}`}
                     role="button"
                     tabIndex={0}
-                    aria-label={`${r.name}, ${status}, ${r.capacity} seats`}
+                    aria-label={`${r.name}, ${status}, ${r.capacityProvisional ? "up to " : ""}${r.capacity} seats`}
                     aria-pressed={selected === r.id}
                     onClick={() => choose(r.id)}
                     onKeyDown={(e) => {
@@ -438,15 +428,16 @@ export default function Workspace({
                   <p className="muted">
                     {floors[active.floor]} · {active.kind}
                   </p>
-                  <p className="inspector-summary">{active.capacity} seats · {statusFor(active.id)}</p>
+                  <p className="inspector-summary">{active.capacityProvisional ? "Up to " : ""}{active.capacity} seats · {statusFor(active.id)}</p>
                   <div className="room-facts">
                     <span>
-                      <strong>{active.capacity}</strong> seats
+                      <strong>{active.capacity}</strong> {active.capacityProvisional ? "max seats" : "seats"}
                     </span>
                     <span className={`status-badge ${statusClass(statusFor(active.id))}`}>
                       {statusFor(active.id)}
                     </span>
                   </div>
+                  {active.capacityProvisional && <p className="notice">Capacity not confirmed. Provisional maximum: {active.capacity} people.</p>}
                   {message && (
                     <p role="status" className="notice">
                       {message}

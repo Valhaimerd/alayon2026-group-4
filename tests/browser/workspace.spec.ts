@@ -10,7 +10,7 @@ test("map selection, floor switching, search and daily navigation remain usable"
   await expect(page.locator('[data-room="g2"]')).toHaveAccessibleName(/^CISC Room 2,/);
   await expect(page.locator('[data-room="g3"]')).toHaveAccessibleName(/^CISC Room 1,/);
   await expect(page.locator('[data-room="g4"]')).toHaveAccessibleName(/^CISC Laboratory 11,/);
-  await expect(page.locator('[data-landmark="conference-room"]')).toBeVisible();
+  await expect(page.locator('[data-room="g5"]')).toHaveAccessibleName(/^Conference Room, No bookings, up to 25 seats$/);
   await page.getByRole("button", { name: /CISC Room 3/ }).first().click();
   await expect(page.getByRole("heading", { name: "CISC Room 3", exact: true })).toBeVisible();
   if (isMobile) await page.getByRole("button", { name: "View schedule", exact: true }).click();
@@ -43,6 +43,31 @@ test("map selection, floor switching, search and daily navigation remain usable"
   await expect(page.getByText("No classes scheduled")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(errors).toEqual([]);
+});
+
+test("Conference Room supports map, keyboard and room-list selection", async ({ page, isMobile }, testInfo) => {
+  await page.goto("/explore?date=2026-11-12");
+  const conference = page.locator('[data-room="g5"]');
+  await expect(page.locator(".map-room")).toHaveCount(5);
+  await conference.click();
+  await expect(conference).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("heading", { name: "Conference Room", exact: true })).toBeVisible();
+  if (isMobile) await page.getByRole("button", { name: "View schedule", exact: true }).click();
+  await expect(page.getByText("Capacity not confirmed. Provisional maximum: 25 people.")).toBeVisible();
+  await expect(page.getByText("No classes scheduled")).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("conference-room.png") });
+  await page.getByRole("button", { name: "Close panel", exact: true }).click();
+  await conference.press("Enter");
+  await expect(page.getByRole("heading", { name: "Conference Room", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Close panel", exact: true }).click();
+  await conference.press("Space");
+  await expect(conference).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "Close panel", exact: true }).click();
+  if (isMobile) await page.getByRole("button", { name: "Filters & rooms" }).click();
+  await page.getByRole("searchbox", { name: "Search rooms or subjects" }).fill("Conference");
+  await page.locator(".room-list").getByRole("button", { name: /^Conference Room/ }).click();
+  await expect(page.getByRole("heading", { name: "Conference Room", exact: true })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
 test("Laravel CSRF protection and legacy routes remain active", async ({ page, request }) => {

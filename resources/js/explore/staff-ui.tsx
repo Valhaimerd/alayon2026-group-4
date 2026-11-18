@@ -604,7 +604,7 @@ export function BookingWizard({
                   <span>
                     <strong>{r.name}</strong>
                     <small>
-                      {r.floor === 0 ? "Ground" : "Second"} floor · {r.capacity} seats
+                      {r.floor === 0 ? "Ground" : "Second"} floor · {r.capacityProvisional ? "up to " : ""}{r.capacity} seats{r.capacityProvisional ? " (capacity not confirmed)" : ""}
                     </small>
                   </span>
                 </label>
